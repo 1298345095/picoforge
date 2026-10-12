@@ -73,7 +73,9 @@ pub trait FirmwareTrait {
 impl AnyFirmware {
     /// Detect firmware type from the authenticator's AAGUID hex string.
     pub fn detect_by_aaguid(aaguid: &str) -> FirmwareType {
-        if aaguid == crate::hal::types::RSKEY_AAGUID {
+        if aaguid == crate::hal::types::RSKEY_AAGUID
+            || aaguid == "39A5647E1853446CA1F6A79BAE9F5BC7"
+        {
             FirmwareType::RSKey
         } else if aaguid == crate::hal::types::PICOFIDO_AAGUID
             || aaguid == crate::hal::types::LKONE_AAGUID
@@ -176,5 +178,34 @@ impl AnyFirmware {
             Self::PicoFido(_) => true,
             Self::RSKey(_) => true,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn custom_rskey_aaguid_is_recognized() {
+        assert_eq!(
+            AnyFirmware::detect_by_aaguid("39A5647E1853446CA1F6A79BAE9F5BC7"),
+            FirmwareType::RSKey
+        );
+    }
+
+    #[test]
+    fn existing_firmware_detection_is_preserved() {
+        assert_eq!(
+            AnyFirmware::detect_by_aaguid(crate::hal::types::RSKEY_AAGUID),
+            FirmwareType::RSKey
+        );
+        assert_eq!(
+            AnyFirmware::detect_by_aaguid(crate::hal::types::PICOFIDO_AAGUID),
+            FirmwareType::PicoFido
+        );
+        assert_eq!(
+            AnyFirmware::detect_by_aaguid("00000000000000000000000000000000"),
+            FirmwareType::Unknown
+        );
     }
 }
