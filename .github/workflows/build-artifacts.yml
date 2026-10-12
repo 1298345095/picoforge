@@ -1,0 +1,106 @@
+name: Build PicoForge (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.artifact }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: picoforge-windows-x64
+          - runner: macos-latest
+            target: aarch64-apple-darwin
+            artifact: picoforge-macos-arm64
+          - runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: picoforge-linux-x64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config libpcsclite-dev libudev-dev libvulkan-dev \
+            libwayland-dev wayland-protocols libxkbcommon-dev \
+            libxcb1-dev libxkbcommon-x11-dev libfontconfig1-dev \
+            libasound2-dev libdbus-1-dev libx11-dev \
+            libxcb-shape0-dev libxcb-xfixes0-dev libusb-1.0-0-dev
+
+      - name: Build release binary
+        run: cargo build --release --locked --target ${{ matrix.target }}
+
+      - name: Verify binary
+        shell: bash
+        run: |
+          ext=""
+          if [[ "${{ runner.os }}" == "Windows" ]]; then ext=".exe"; fi
+          test -s "target/${{ matrix.target }}/release/picoforge${ext}"
+
+      - name: Create Linux archive
+        if: runner.os == 'Linux'
+        run: |
+          tar -czf picoforge-linux-x64.tar.gz \
+            -C target/x86_64-unknown-linux-gnu/release picoforge
+
+      - name: Install desktop packager
+        if: runner.os != 'Linux'
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-packager
+
+      - name: Build Windows/macOS installers
+        if: runner.os != 'Linux'
+        run: cargo packager --release --target ${{ matrix.target }}
+
+      - name: Upload Windows build
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v7
+        with:
+          name: picoforge-windows-x64
+          path: |
+            target/x86_64-pc-windows-msvc/release/picoforge.exe
+            target/x86_64-pc-windows-msvc/release/*.msi
+            target/x86_64-pc-windows-msvc/release/*-setup.exe
+          if-no-files-found: error
+
+      - name: Upload macOS build
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v7
+        with:
+          name: picoforge-macos-arm64
+          path: target/aarch64-apple-darwin/release/*.dmg
+          if-no-files-found: error
+
+      - name: Upload Linux build
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: picoforge-linux-x64
+          path: picoforge-linux-x64.tar.gz
+          if-no-files-found: error

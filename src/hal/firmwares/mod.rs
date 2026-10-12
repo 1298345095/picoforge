@@ -73,8 +73,7 @@ pub trait FirmwareTrait {
 impl AnyFirmware {
     /// Detect firmware type from the authenticator's AAGUID hex string.
     pub fn detect_by_aaguid(aaguid: &str) -> FirmwareType {
-        if aaguid == crate::hal::types::RSKEY_AAGUID
-            || aaguid == "39A5647E1853446CA1F6A79BAE9F5BC7"
+        if aaguid == crate::hal::types::RSKEY_AAGUID || aaguid == "39A5647E1853446CA1F6A79BAE9F5BC7"
         {
             FirmwareType::RSKey
         } else if aaguid == crate::hal::types::PICOFIDO_AAGUID

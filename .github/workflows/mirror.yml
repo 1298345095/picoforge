@@ -1,13 +1,13 @@
-name: Mirror
+name: Mirror (upstream only)
+# Fork safety: mirrors are only for the original librekeys repository.
+# Never run automatically or write to upstream mirror destinations from forks.
 on:
-  push:
-  create:
-  delete:
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   mirror-gitlab:
+    if: github.repository == 'librekeys/picoforge'
     concurrency:
       group: ${{ github.workflow }}-gitlab
       cancel-in-progress: true
@@ -19,6 +19,7 @@ jobs:
           GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
   mirror-codeberg:
+    if: github.repository == 'librekeys/picoforge'
     concurrency:
       group: ${{ github.workflow }}-codeberg
       cancel-in-progress: true
@@ -30,6 +31,7 @@ jobs:
           CODEBERG_USERNAME: ${{ secrets.CODEBERG_USERNAME }}
           CODEBERG_TOKEN: ${{ secrets.CODEBERG_TOKEN }}
   mirror-disroot:
+    if: github.repository == 'librekeys/picoforge'
     concurrency:
       group: ${{ github.workflow }}-disroot
       cancel-in-progress: true
