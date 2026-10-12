@@ -66,8 +66,7 @@ use crate::{
         firmwares::AnyFirmware,
         types::{
             AppConfig, AppConfigInput, DeviceInfo, DeviceMethod, FidoDeviceInfo, FirmwareType,
-            FullDeviceStatus, LKONE_AAGUID, LedStatusConfig, PICOFIDO_AAGUID, RSKEY_AAGUID,
-            StoredCredential,
+            FullDeviceStatus, LedStatusConfig, StoredCredential,
         },
     },
 };
@@ -645,13 +644,7 @@ pub fn read_device_details() -> Result<FullDeviceStatus, PFError> {
         fido_info.firmware_version
     );
 
-    let firmware_type = if fido_info.aaguid == RSKEY_AAGUID {
-        FirmwareType::RSKey
-    } else if fido_info.aaguid == PICOFIDO_AAGUID || fido_info.aaguid == LKONE_AAGUID {
-        FirmwareType::PicoFido
-    } else {
-        FirmwareType::Unknown
-    };
+    let firmware_type = AnyFirmware::detect_by_aaguid(&fido_info.aaguid);
     let has_legacy_vendor =
         firmware_type == FirmwareType::PicoFido && probe_legacy_vendor_support(&transport);
     let firmware = AnyFirmware::new_with_legacy(
@@ -1204,13 +1197,7 @@ pub fn write_config(config: AppConfigInput, pin: Option<String>) -> Result<Strin
         PFError::Device(format!("Could not open HID transport: {}", e))
     })?;
     let fido_info = read_device_info(&transport)?;
-    let firmware_type = if fido_info.aaguid == RSKEY_AAGUID {
-        FirmwareType::RSKey
-    } else if fido_info.aaguid == PICOFIDO_AAGUID || fido_info.aaguid == LKONE_AAGUID {
-        FirmwareType::PicoFido
-    } else {
-        FirmwareType::Unknown
-    };
+    let firmware_type = AnyFirmware::detect_by_aaguid(&fido_info.aaguid);
     let has_legacy_vendor =
         firmware_type == FirmwareType::PicoFido && probe_legacy_vendor_support(&transport);
     let firmware = AnyFirmware::new_with_legacy(
