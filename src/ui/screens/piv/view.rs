@@ -124,7 +124,7 @@ impl PivViewModel {
             .child(
                 v_flex()
                     .gap_0p5()
-                    .child(div().font_medium().child(piv::slot_label(slot)))
+                    .child(div().font_medium().child(super::view_model::slot_display_name(slot)))
                     .child(
                         div()
                             .text_sm()

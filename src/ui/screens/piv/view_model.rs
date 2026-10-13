@@ -13,6 +13,17 @@ use gpui_component::WindowExt;
 use gpui_component::button::ButtonVariants;
 use gpui_component::select::SelectState;
 
+/// Translated slot names for visible labels, without changing slot identifiers.
+pub(super) fn slot_display_name(slot: u8) -> &'static str {
+    match slot {
+        piv::SLOT_9A => "身份认证（9A）",
+        piv::SLOT_9C => "数字签名（9C）",
+        piv::SLOT_9D => "密钥管理（9D）",
+        piv::SLOT_9E => "卡片认证（9E）",
+        _ => "插槽",
+    }
+}
+
 const OPT_ALGO: &[(&str, u8)] = &[
     ("ECC P-256", 0x11),
     ("ECC P-384", 0x14),
@@ -22,17 +33,17 @@ const OPT_ALGO: &[(&str, u8)] = &[
     ("RSA-3072", 0x05),
     ("RSA-4096", 0x16),
 ];
-const OPT_PIN_POLICY: &[(&str, u8)] = &[("Default", 0), ("Never", 1), ("Once", 2), ("Always", 3)];
+const OPT_PIN_POLICY: &[(&str, u8)] = &[("默认", 0), ("从不", 1), ("一次", 2), ("始终", 3)];
 const OPT_TOUCH_POLICY: &[(&str, u8)] =
-    &[("Default", 0), ("Never", 1), ("Always", 2), ("Cached", 3)];
+    &[("默认", 0), ("从不", 1), ("始终", 2), ("缓存", 3)];
 const OPT_TRIES: &[(&str, u8)] = &[("3", 3), ("5", 5), ("8", 8), ("10", 10)];
 const OPT_MGM_ALGO: &[(&str, u8)] = &[("AES-192", 0x0A), ("AES-128", 0x08), ("AES-256", 0x0C)];
-const OPT_MGM_TOUCH: &[(&str, u8)] = &[("Not required", 0), ("Touch required", 1)];
+const OPT_MGM_TOUCH: &[(&str, u8)] = &[("无需触摸", 0), ("需要触摸", 1)];
 const OPT_SLOTS: &[(&str, u8)] = &[
-    ("Authentication (9A)", 0x9A),
-    ("Signature (9C)", 0x9C),
-    ("Key Management (9D)", 0x9D),
-    ("Card Authentication (9E)", 0x9E),
+    ("身份认证（9A）", 0x9A),
+    ("数字签名（9C）", 0x9C),
+    ("密钥管理（9D）", 0x9D),
+    ("卡片认证（9E）", 0x9E),
 ];
 
 fn default_mgm_hex() -> String {
@@ -65,7 +76,7 @@ fn resolve_mgm_auth(
         if pin.is_empty() {
             let _ = view.update(cx, |_, cx| {
                 cx.emit(PivEvent::Notification(
-                    "Enter the PIN to unlock the management key".into(),
+                    "请输入 PIN 以解锁管理密钥".into(),
                 ));
             });
             return None;
@@ -77,7 +88,7 @@ fn resolve_mgm_auth(
         None => {
             let _ = view.update(cx, |_, cx| {
                 cx.emit(PivEvent::Notification(
-                    "Management key must be 16/24/32-byte hex".into(),
+                    "管理密钥必须是 16、24 或 32 字节的十六进制数据".into(),
                 ));
             });
             None
@@ -171,9 +182,9 @@ impl PivViewModel {
     /// The dialog label for the management-auth field.
     fn mgm_label(&self) -> &'static str {
         if self.mgm_protected() {
-            "PIN (the management key is PIN-protected)"
+            "PIN（管理密钥受 PIN 保护）"
         } else {
-            "Management key (hex)"
+            "管理密钥（十六进制）"
         }
     }
 
@@ -273,14 +284,14 @@ impl PivViewModel {
                 let pin_pol = selected_key(&pin_sel, OPT_PIN_POLICY, cx);
                 let touch_pol = selected_key(&touch_sel, OPT_TOUCH_POLICY, cx);
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Generating Key", window, cx);
+                let status = dialog::open_status_dialog("正在生成密钥", window, cx);
                 let _ = view.update(cx, |this, cx| {
                     this.run(
                         move || {
                             DeviceRepo::piv_generate_blocking(slot, algo, pin_pol, touch_pol, auth)
                                 .map(|_| ())
                         },
-                        "Key generated.",
+                        "密钥已生成。",
                         status,
                         cx,
                     );
@@ -307,18 +318,18 @@ impl PivViewModel {
                     )
             };
             dialog
-                .title(format!("Generate — {}", piv::slot_label(slot)))
-                .child("Generates a new key pair and a self-signed certificate in this slot.")
+                .title(format!("生成密钥 — {}", slot_display_name(slot)))
+                .child("在此插槽中生成新密钥对和自签名证书。")
                 .child(
                     gpui_component::v_flex()
                         .gap_3()
                         .pb_2()
-                        .child(field("Algorithm", &algo_sel))
+                        .child(field("算法", &algo_sel))
                         .child(
                             gpui_component::h_flex()
                                 .gap_3()
-                                .child(field("PIN policy", &pin_sel))
-                                .child(field("Touch policy", &touch_sel)),
+                                .child(field("PIN 策略", &pin_sel))
+                                .child(field("触摸策略", &touch_sel)),
                         )
                         .child(mgm_label)
                         .child(gpui_component::input::Input::new(&mgm)),
@@ -331,11 +342,11 @@ impl PivViewModel {
                     let s = btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("gen")
                             .primary()
-                            .label("Generate")
+                            .label("生成")
                             .on_click(move |_, window, cx| s(window, cx)),
                     ]
                 })
@@ -368,13 +379,13 @@ impl PivViewModel {
                     let pem = der_to_pem(&der);
                     match std::fs::write(&path, pem) {
                         Ok(_) => cx.emit(PivEvent::Notification(format!(
-                            "Certificate saved to {}",
+                            "证书已保存到 {}",
                             path.display()
                         ))),
-                        Err(e) => cx.emit(PivEvent::Notification(format!("Save failed: {e}"))),
+                        Err(e) => cx.emit(PivEvent::Notification(format!("保存失败：{e}"))),
                     }
                 }
-                Err(e) => cx.emit(PivEvent::Notification(format!("Export failed: {e}"))),
+                Err(e) => cx.emit(PivEvent::Notification(format!("导出失败：{e}"))),
             });
         }));
     }
@@ -387,11 +398,11 @@ impl PivViewModel {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        let title = if is_puk { "Change PUK" } else { "Change PIN" };
+        let title = if is_puk { "修改 PUK" } else { "修改 PIN" };
         self.two_secret_dialog(
             title,
-            if is_puk { "Current PUK" } else { "Current PIN" },
-            if is_puk { "New PUK" } else { "New PIN" },
+            if is_puk { "当前 PUK" } else { "当前 PIN" },
+            if is_puk { "新 PUK" } else { "新 PIN" },
             window,
             cx,
             move |cur, new| {
@@ -402,22 +413,22 @@ impl PivViewModel {
                 }
             },
             if is_puk {
-                "PUK changed."
+                "PUK 已修改。"
             } else {
-                "PIN changed."
+                "PIN 已修改。"
             },
         );
     }
 
     pub(super) fn open_unblock_pin(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.two_secret_dialog(
-            "Unblock PIN",
+            "解除 PIN 锁定",
             "PUK",
-            "New PIN",
+            "新 PIN",
             window,
             cx,
             DeviceRepo::piv_unblock_pin_blocking,
-            "PIN unblocked.",
+            "PIN 已解锁。",
         );
     }
 
@@ -479,11 +490,11 @@ impl PivViewModel {
                     let s = btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("ok")
                             .primary()
-                            .label("Save")
+                            .label("保存")
                             .on_click(move |_, window, cx| s(window, cx)),
                     ]
                 })
@@ -511,11 +522,11 @@ impl PivViewModel {
                     return;
                 };
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Deleting Certificate", window, cx);
+                let status = dialog::open_status_dialog("正在删除证书", window, cx);
                 let _ = view.update(cx, |this, cx| {
                     this.run(
                         move || DeviceRepo::piv_delete_cert_blocking(slot, auth),
-                        "Certificate deleted.",
+                        "证书已删除。",
                         status,
                         cx,
                     );
@@ -527,9 +538,9 @@ impl PivViewModel {
             let ok = submit.clone();
             let btn = submit.clone();
             dialog
-                .title(format!("Delete certificate — {}", piv::slot_label(slot)))
+                .title(format!("删除证书 — {}", slot_display_name(slot)))
                 .child(
-                    "Clears this slot's certificate (the key stays). Requires the management key.",
+                    "仅删除此插槽中的证书，保留密钥。需要管理密钥。",
                 )
                 .child(
                     gpui_component::v_flex()
@@ -546,11 +557,11 @@ impl PivViewModel {
                     let s = btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("del")
                             .danger()
-                            .label("Delete")
+                            .label("删除")
                             .on_click(move |_, window, cx| s(window, cx)),
                     ]
                 })
@@ -585,11 +596,11 @@ impl PivViewModel {
                 let pt = selected_key(&pin_tries, OPT_TRIES, cx);
                 let ut = selected_key(&puk_tries, OPT_TRIES, cx);
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Setting Retries", window, cx);
+                let status = dialog::open_status_dialog("正在设置重试次数", window, cx);
                 let _ = view.update(cx, |this, cx| {
                     this.run(
                         move || DeviceRepo::piv_set_retries_blocking(auth, pin_v, pt, ut),
-                        "Retry counters updated (PIN/PUK reset to defaults).",
+                        "重试次数已更新（PIN 和 PUK 已恢复默认值）。",
                         status,
                         cx,
                     );
@@ -615,8 +626,8 @@ impl PivViewModel {
                     )
             };
             dialog
-                .title("Set PIN Retries")
-                .child("Resets the PIN and PUK to their defaults and sets new retry limits.")
+                .title("设置 PIN 重试次数")
+                .child("将 PIN 和 PUK 恢复为默认值，并设置新的重试次数限制。")
                 .child(
                     gpui_component::v_flex()
                         .gap_3()
@@ -624,10 +635,10 @@ impl PivViewModel {
                         .child(
                             gpui_component::h_flex()
                                 .gap_3()
-                                .child(field("PIN retries", &pin_tries))
-                                .child(field("PUK retries", &puk_tries)),
+                                .child(field("PIN 重试次数", &pin_tries))
+                                .child(field("PUK 重试次数", &puk_tries)),
                         )
-                        .child("Current PIN")
+                        .child("当前 PIN")
                         .child(gpui_component::input::Input::new(&pin))
                         .child(mgm_label)
                         .child(gpui_component::input::Input::new(&mgm)),
@@ -640,11 +651,11 @@ impl PivViewModel {
                     let s = btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("ok")
                             .primary()
-                            .label("Apply")
+                            .label("应用")
                             .on_click(move |_, window, cx| s(window, cx)),
                     ]
                 })
@@ -657,9 +668,9 @@ impl PivViewModel {
         let cur_algo = self.mgm_algo();
         let protected = self.mgm_protected();
         let cur_label = if protected {
-            "PIN (unlocks the current management key)"
+            "PIN（用于解锁当前管理密钥）"
         } else {
-            "Current management key (hex)"
+            "当前管理密钥（十六进制）"
         };
         let cur = self.mgm_input(window, cx);
         let new = cx.new(|cx| gpui_component::input::InputState::new(window, cx));
@@ -697,17 +708,17 @@ impl PivViewModel {
                     _ => {
                         return notify(
                             cx,
-                            "New key length must match the algorithm (16/24/32 bytes)",
+                            "新密钥长度必须与算法匹配（16、24 或 32 字节）",
                         );
                     }
                 };
                 let touch = selected_key(&touch_sel, OPT_MGM_TOUCH, cx) == 1;
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Changing Management Key", window, cx);
+                let status = dialog::open_status_dialog("正在修改管理密钥", window, cx);
                 let _ = view.update(cx, |this, cx| {
                     this.run(
                         move || DeviceRepo::piv_set_mgm_blocking(current, new_algo, new_key, touch),
-                        "Management key changed.",
+                        "管理密钥已修改。",
                         status,
                         cx,
                     );
@@ -728,8 +739,8 @@ impl PivViewModel {
                 )
             };
             dialog
-                .title("Change Management Key")
-                .child("Sets a new PIV management key. Store it safely — it is required for all key/cert changes.")
+                .title("修改管理密钥")
+                .child("设置新的 PIV 管理密钥。请妥善保存，之后修改密钥或证书时都需要它。")
                 .child(
                     gpui_component::v_flex()
                         .gap_3()
@@ -739,10 +750,10 @@ impl PivViewModel {
                         .child(
                             gpui_component::h_flex()
                                 .gap_3()
-                                .child(field("New algorithm", &algo_sel))
-                                .child(field("Touch", &touch_sel)),
+                                .child(field("新算法", &algo_sel))
+                                .child(field("触摸", &touch_sel)),
                         )
-                        .child("New key (hex)")
+                        .child("新密钥（十六进制）")
                         .child(
                             gpui_component::h_flex()
                                 .gap_2()
@@ -754,7 +765,7 @@ impl PivViewModel {
                                 )
                                 .child(
                                     gpui_component::button::Button::new("gen-mgm")
-                                        .label("Generate")
+                                        .label("生成")
                                         .outline()
                                         .on_click(move |_, window, cx| gen_key(window, cx)),
                                 ),
@@ -768,11 +779,11 @@ impl PivViewModel {
                     let s = btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("ok")
                             .primary()
-                            .label("Change")
+                            .label("修改")
                             .on_click(move |_, window, cx| s(window, cx)),
                     ]
                 })
@@ -792,7 +803,7 @@ impl PivViewModel {
             files: true,
             directories: false,
             multiple: false,
-            prompt: Some("Select certificate (PEM or DER)".into()),
+            prompt: Some("选择证书（PEM 或 DER）".into()),
         });
         let view = cx.entity().downgrade();
         self._task = Some(cx.spawn(async move |_, cx| {
@@ -804,14 +815,14 @@ impl PivViewModel {
             };
             let Ok(bytes) = std::fs::read(&path) else {
                 let _ = view.update(cx, |_, cx| {
-                    cx.emit(PivEvent::Notification("Could not read file".into()))
+                    cx.emit(PivEvent::Notification("无法读取文件".into()))
                 });
                 return;
             };
             let Some(der) = cert_pem_to_der(&bytes) else {
                 let _ = view.update(cx, |_, cx| {
                     cx.emit(PivEvent::Notification(
-                        "Not a valid PEM/DER certificate".into(),
+                        "不是有效的 PEM/DER 证书".into(),
                     ))
                 });
                 return;
@@ -835,7 +846,7 @@ impl PivViewModel {
             files: true,
             directories: false,
             multiple: false,
-            prompt: Some("Select private key (PEM or DER)".into()),
+            prompt: Some("选择私钥（PEM 或 DER）".into()),
         });
         let view = cx.entity().downgrade();
         self._task = Some(cx.spawn(async move |_, cx| {
@@ -847,7 +858,7 @@ impl PivViewModel {
             };
             let Ok(bytes) = std::fs::read(&path) else {
                 let _ = view.update(cx, |_, cx| {
-                    cx.emit(PivEvent::Notification("Could not read file".into()))
+                    cx.emit(PivEvent::Notification("无法读取文件".into()))
                 });
                 return;
             };
@@ -883,9 +894,9 @@ impl PivViewModel {
                 window.close_dialog(cx);
                 let status = dialog::open_status_dialog(
                     if is_key {
-                        "Importing Key"
+                        "正在导入密钥"
                     } else {
-                        "Importing Certificate"
+                        "正在导入证书"
                     },
                     window,
                     cx,
@@ -894,14 +905,14 @@ impl PivViewModel {
                     if is_key {
                         this.run(
                             move || DeviceRepo::piv_import_key_blocking(slot, file, auth),
-                            "Key imported.",
+                            "密钥已导入。",
                             status,
                             cx,
                         );
                     } else {
                         this.run(
                             move || DeviceRepo::piv_import_cert_blocking(slot, file, auth),
-                            "Certificate imported.",
+                            "证书已导入。",
                             status,
                             cx,
                         );
@@ -915,11 +926,11 @@ impl PivViewModel {
             let btn = submit.clone();
             dialog
                 .title(if is_key {
-                    "Import Key"
+                    "导入密钥"
                 } else {
-                    "Import Certificate"
+                    "导入证书"
                 })
-                .child("Enter the management key to authorise the import.")
+                .child("请输入管理密钥以授权导入。")
                 .child(
                     gpui_component::v_flex()
                         .gap_2()
@@ -935,11 +946,11 @@ impl PivViewModel {
                     let s = btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("ok")
                             .primary()
-                            .label("Import")
+                            .label("导入")
                             .on_click(move |_, window, cx| s(window, cx)),
                     ]
                 })
@@ -968,12 +979,12 @@ impl PivViewModel {
             let _ = view.update(cx, |_, cx| match der {
                 Ok(der) => match std::fs::write(&path, der_to_pem(&der)) {
                     Ok(_) => cx.emit(PivEvent::Notification(format!(
-                        "Attestation saved to {}",
+                        "证明证书已保存到 {}",
                         path.display()
                     ))),
-                    Err(e) => cx.emit(PivEvent::Notification(format!("Save failed: {e}"))),
+                    Err(e) => cx.emit(PivEvent::Notification(format!("保存失败：{e}"))),
                 },
-                Err(e) => cx.emit(PivEvent::Notification(format!("Attestation failed: {e}"))),
+                Err(e) => cx.emit(PivEvent::Notification(format!("生成证明失败：{e}"))),
             });
         }));
     }
@@ -999,11 +1010,11 @@ impl PivViewModel {
                     return;
                 };
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Deleting Key", window, cx);
+                let status = dialog::open_status_dialog("正在删除密钥", window, cx);
                 let _ = view.update(cx, |this, cx| {
                     this.run(
                         move || DeviceRepo::piv_delete_key_blocking(slot, auth),
-                        "Key deleted.",
+                        "密钥已删除。",
                         status,
                         cx,
                     );
@@ -1015,8 +1026,8 @@ impl PivViewModel {
             let ok = submit.clone();
             let btn = submit.clone();
             dialog
-                .title(format!("Delete key — {}", piv::slot_label(slot)))
-                .child("Permanently deletes this slot's key and certificate. Requires the management key.")
+                .title(format!("删除密钥 — {}", slot_display_name(slot)))
+                .child("永久删除此插槽中的密钥和证书，需要管理密钥。")
                 .child(
                     gpui_component::v_flex()
                         .gap_2()
@@ -1032,11 +1043,11 @@ impl PivViewModel {
                     let s = btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("del")
                             .danger()
-                            .label("Delete")
+                            .label("删除")
                             .on_click(move |_, window, cx| s(window, cx)),
                     ]
                 })
@@ -1064,17 +1075,17 @@ impl PivViewModel {
                 if dst == src {
                     let _ = view.update(cx, |_, cx| {
                         cx.emit(PivEvent::Notification(
-                            "Choose a different destination slot".into(),
+                            "请选择不同的目标插槽".into(),
                         ));
                     });
                     return;
                 }
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Moving Key", window, cx);
+                let status = dialog::open_status_dialog("正在移动密钥", window, cx);
                 let _ = view.update(cx, |this, cx| {
                     this.run(
                         move || DeviceRepo::piv_move_key_blocking(src, dst, auth),
-                        "Key moved.",
+                        "密钥已移动。",
                         status,
                         cx,
                     );
@@ -1087,13 +1098,13 @@ impl PivViewModel {
             let ok = submit.clone();
             let btn = submit.clone();
             dialog
-                .title(format!("Move key from {}", piv::slot_label(src)))
-                .child("Moves the key + certificate to another slot (overwrites the destination).")
+                .title(format!("从 {} 移动密钥", slot_display_name(src)))
+                .child("将密钥和证书移动到其他插槽（会覆盖目标插槽中的内容）。")
                 .child(
                     gpui_component::v_flex()
                         .gap_3()
                         .pb_2()
-                        .child("Destination slot")
+                        .child("目标插槽")
                         .child(
                             gpui_component::select::Select::new(&dst_sel)
                                 .w_full()
@@ -1110,11 +1121,11 @@ impl PivViewModel {
                     let s = btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("mv")
                             .primary()
-                            .label("Move")
+                            .label("移动")
                             .on_click(move |_, window, cx| s(window, cx)),
                     ]
                 })
@@ -1126,17 +1137,17 @@ impl PivViewModel {
     pub(super) fn open_reset_dialog(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let view = cx.entity().downgrade();
         dialog::open_confirm(
-            "Reset PIV Applet",
-            "This blocks the PIN and PUK, then factory-resets PIV — deleting ALL keys and certificates and restoring the default PIN/PUK/management key. This cannot be undone.".to_string(),
-            "Reset",
+            "重置 PIV 模块",
+            "此操作将锁定 PIN 和 PUK，随后恢复 PIV 出厂设置，删除所有密钥和证书，并恢复默认 PIN、PUK 及管理密钥。操作不可撤销。".to_string(),
+            "重置",
             gpui_component::button::ButtonVariant::Danger,
             window,
             cx,
             move |_dh, window, cx| {
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Resetting PIV", window, cx);
+                let status = dialog::open_status_dialog("正在重置 PIV", window, cx);
                 let _ = view.update(cx, |this, cx| {
-                    this.run(DeviceRepo::piv_reset_blocking, "PIV applet reset.", status, cx);
+                    this.run(DeviceRepo::piv_reset_blocking, "PIV 模块已重置。", status, cx);
                 });
             },
         );
