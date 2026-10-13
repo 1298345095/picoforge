@@ -24,7 +24,7 @@ impl PasskeysViewModel {
         let pem_for_copy = pem.clone();
 
         let request_listener = cx.listener(|this, _, window, cx| {
-            let status_handle = dialog::open_status_dialog("Certificate Request", window, cx);
+            let status_handle = dialog::open_status_dialog("证书请求", window, cx);
             this.request_csr(status_handle, cx);
         });
 
@@ -53,7 +53,7 @@ impl PasskeysViewModel {
                     Ok(_) => {
                         let _ = entity.update(cx, |_, cx| {
                             cx.emit(PasskeysEvent::Notification(format!(
-                                "CSR saved to {}",
+                                "CSR 已保存到 {}",
                                 path.display()
                             )));
                         });
@@ -61,7 +61,7 @@ impl PasskeysViewModel {
                     Err(e) => {
                         let _ = entity.update(cx, |_, cx| {
                             cx.emit(PasskeysEvent::Notification(format!(
-                                "Failed to save CSR: {}",
+                                "保存 CSR 失败：{}",
                                 e
                             )));
                         });
@@ -70,7 +70,7 @@ impl PasskeysViewModel {
                 Ok(Err(e)) => {
                     let _ = entity.update(cx, |_, cx| {
                         cx.emit(PasskeysEvent::Notification(format!(
-                            "Save dialog error: {}",
+                            "保存对话框出错：{}",
                             e
                         )));
                     });
@@ -106,7 +106,7 @@ impl PasskeysViewModel {
                     .justify_between()
                     .p_4()
                     .child(
-                        v_flex().child(div().font_medium().child("Enable enterprise attestation")),
+                        v_flex().child(div().font_medium().child("启用企业证明")),
                     )
                     .child(
                         h_flex().gap_2().child(
@@ -130,12 +130,12 @@ impl PasskeysViewModel {
                     .p_4()
                     .child(
                         v_flex()
-                            .child(div().font_medium().child("Certificate Signing Request"))
+                            .child(div().font_medium().child("证书签名请求（CSR）"))
                             .child(div().text_sm().text_color(theme.muted_foreground).child(
                                 if csr_ready {
-                                    "CSR retrieved"
+                                    "已获取 CSR"
                                 } else {
-                                    "Get a CSR for enterprise attestation enrollment"
+                                    "获取用于企业证明注册的 CSR"
                                 },
                             )),
                     )
@@ -144,14 +144,14 @@ impl PasskeysViewModel {
                             .gap_2()
                             .when(csr_ready, |el| {
                                 el.child(
-                                    PFButton::new(if show_csr { "Hide CSR" } else { "View CSR" })
+                                    PFButton::new(if show_csr { "隐藏 CSR" } else { "查看 CSR" })
                                         .id("view-csr-btn")
                                         .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
                                         .on_click(view_listener),
                                 )
                             })
                             .child(
-                                PFButton::new(if csr_ready { "Refresh" } else { "Request CSR" })
+                                PFButton::new(if csr_ready { "刷新" } else { "请求 CSR" })
                                     .id("request-csr-btn")
                                     .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
                                     .loading(is_loading)
@@ -165,7 +165,7 @@ impl PasskeysViewModel {
                         v_flex()
                             .gap_3()
                             .child(div().text_sm().text_color(theme.muted_foreground).child(
-                                "Certificate Signing Request from the device's attestation key.",
+                                "由设备证明密钥生成的证书签名请求。",
                             ))
                             .child(
                                 div()
@@ -182,7 +182,7 @@ impl PasskeysViewModel {
                                     .gap_2()
                                     .child(
                                         Button::new("copy-csr")
-                                            .label("Copy to Clipboard")
+                                            .label("复制到剪贴板")
                                             .on_click(move |_, _, cx| {
                                                 cx.write_to_clipboard(ClipboardItem::new_string(
                                                     pem_for_copy.clone(),
@@ -192,7 +192,7 @@ impl PasskeysViewModel {
                                     .child(
                                         Button::new("save-csr")
                                             .primary()
-                                            .label("Save to File")
+                                            .label("保存到文件")
                                             .on_click(save_listener),
                                     ),
                             ),
@@ -210,24 +210,24 @@ impl PasskeysViewModel {
             .rounded_lg()
             .child(
                 v_flex()
-                    .child(div().font_medium().child("Upload Certificate"))
+                    .child(div().font_medium().child("上传证书"))
                     .child(
                         div()
                             .text_sm()
                             .text_color(theme.muted_foreground)
-                            .child("Upload the signed certificate to the device"),
+                            .child("将签名后的证书上传到设备"),
                     ),
             )
             .child(
-                PFButton::new("Upload Certificate")
+                PFButton::new("上传证书")
                     .id("upload-cert-btn")
                     .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
                     .on_click(upload_listener),
             );
 
         Card::new()
-            .title("Enterprise Attestation")
-            .description("Configure enterprise-specific features")
+            .title("企业证明")
+            .description("配置企业专属功能")
             .icon(Icon::default().path("icons/shield-check.svg"))
             .child(
                 v_flex()
@@ -254,19 +254,19 @@ impl PasskeysViewModel {
                             .text_base()
                             .font_weight(gpui::FontWeight::MEDIUM)
                             .text_color(theme.foreground)
-                            .child("Factory Reset"),
+                            .child("恢复出厂设置"),
                     )
                     .child(
                         div()
                             .text_sm()
                             .text_color(theme.muted_foreground)
-                            .child("Erase all passkeys, credentials, and PIN. Cannot be undone."),
+                            .child("将清除所有通行密钥、凭据及 PIN，此操作不可撤销。"),
                     ),
             )
             .child(
                 Button::new("reset-device")
                     .icon(Icon::default().path("icons/circle-alert.svg"))
-                    .child("Reset Device")
+                    .child("重置设备")
                     .custom(
                         ButtonCustomVariant::new(cx)
                             .color(theme.danger)
@@ -281,8 +281,8 @@ impl PasskeysViewModel {
             );
 
         Card::new()
-            .title("Reset")
-            .description("Perform a destructive factory reset")
+            .title("重置")
+            .description("执行不可逆的恢复出厂设置")
             .icon(Icon::default().path("icons/trash.svg"))
             .child(header)
     }
@@ -299,7 +299,7 @@ impl PasskeysViewModel {
             .child(
                 div()
                     .text_color(theme.muted_foreground)
-                    .child("Connect your pico-key to manage passkeys."),
+                    .child("请连接 pico-key 以管理通行密钥。"),
             )
             .into_any_element()
     }
@@ -316,7 +316,7 @@ impl PasskeysViewModel {
             .child(
                 div()
                     .text_color(theme.muted_foreground)
-                    .child("FIDO Passkeys are not supported on this device."),
+                    .child("此设备不支持 FIDO 通行密钥。"),
             )
             .into_any_element()
     }
@@ -326,9 +326,9 @@ impl PasskeysViewModel {
         let min_len_row = self.render_min_pin_length_row(cx).into_any_element();
 
         Card::new()
-            .title("PIN Management")
+            .title("PIN 管理")
             .icon(Icon::default().path("icons/key.svg"))
-            .description("Configure FIDO2 PIN security")
+            .description("配置 FIDO2 PIN 安全设置")
             .child(v_flex().gap_4().child(status_row).child(min_len_row))
     }
 
@@ -359,20 +359,20 @@ impl PasskeysViewModel {
             .rounded_lg()
             .child(
                 v_flex()
-                    .child(div().font_medium().child("Current PIN Status"))
+                    .child(div().font_medium().child("当前 PIN 状态"))
                     .child(
                         div()
                             .text_sm()
                             .text_color(theme.muted_foreground)
                             .child(if pin_set {
-                                "PIN is set"
+                                "已设置 PIN"
                             } else {
-                                "No PIN configured"
+                                "尚未设置 PIN"
                             }),
                     ),
             )
             .child(
-                PFButton::new(if pin_set { "Change PIN" } else { "Set up PIN" })
+                PFButton::new(if pin_set { "修改 PIN" } else { "设置 PIN" })
                     .id("change-pin-btn")
                     .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
                     .on_click(listener),
@@ -399,16 +399,16 @@ impl PasskeysViewModel {
             .rounded_lg()
             .child(
                 v_flex()
-                    .child(div().font_medium().child("Minimum PIN Length"))
+                    .child(div().font_medium().child("PIN 最短长度"))
                     .child(
                         div()
                             .text_sm()
                             .text_color(theme.muted_foreground)
-                            .child(format!("Current: {} characters", min_len)),
+                            .child(format!("当前：{} 个字符", min_len)),
                     ),
             )
             .child(
-                PFButton::new("Update Minimum Length")
+                PFButton::new("修改最短长度")
                     .id("update-min-len-btn")
                     .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
                     .disabled(!pin_set)
@@ -433,9 +433,9 @@ impl PasskeysViewModel {
         let theme = cx.theme();
 
         Card::new()
-            .title("Stored Passkeys")
+            .title("已保存的通行密钥")
             .icon(Icon::default().path("icons/key-round.svg"))
-            .description("View and manage your resident credentials")
+            .description("查看并管理驻留凭据")
             .child(
                 v_flex()
                     .items_center()
@@ -454,18 +454,18 @@ impl PasskeysViewModel {
                         div()
                             .text_lg()
                             .font_semibold()
-                            .child("Authentication Required"),
+                            .child("需要身份验证"),
                     )
                     .child(
                         div()
                             .text_color(theme.muted_foreground)
                             .text_sm()
-                            .child("Unlock your device to view and manage passkeys."),
+                            .child("请先解锁设备，以查看和管理通行密钥。"),
                     )
                     .child(
                         PFIconButton::new(
                             Icon::default().path("icons/lock-open.svg"),
-                            "Unlock Storage",
+                            "解锁存储区",
                         )
                         .on_click(listener)
                         .with_colors(rgb(0xe4e4e7), rgb(0xd0d0d3), rgb(0xe4e4e7))
@@ -488,9 +488,9 @@ impl PasskeysViewModel {
         let theme = cx.theme();
 
         Card::new()
-            .title("Stored Passkeys")
+            .title("已保存的通行密钥")
             .icon(Icon::default().path("icons/key-round.svg"))
-            .description("View and manage your resident credentials")
+            .description("查看并管理驻留凭据")
             .child(
                 v_flex()
                     .gap_6()
@@ -513,7 +513,7 @@ impl PasskeysViewModel {
                                                             .path("icons/lock-open.svg")
                                                             .size_3p5(),
                                                     )
-                                                    .child("Unlocked"),
+                                                    .child("已解锁"),
                                             )
                                             .color(gpui::green()),
                                     )
@@ -522,13 +522,13 @@ impl PasskeysViewModel {
                                         div()
                                             .text_sm()
                                             .text_color(theme.muted_foreground)
-                                            .child(format!("{} credentials stored", creds_len)),
+                                            .child(format!("已保存 {} 个凭据", creds_len)),
                                     ),
                             )
                             .child(
                                 PFIconButton::new(
                                     Icon::default().path("icons/lock.svg").size_3p5(),
-                                    "Lock Storage",
+                                    "锁定存储区",
                                 )
                                 .small()
                                 .on_click(lock_listener),
@@ -569,14 +569,14 @@ impl PasskeysViewModel {
                             .text_color(theme.muted_foreground),
                     ),
             )
-            .child(div().text_lg().font_semibold().child("No Passkeys Found"))
+            .child(div().text_lg().font_semibold().child("未找到通行密钥"))
             .child(
                 div()
                     .text_color(theme.muted_foreground)
                     .text_sm()
                     .text_center()
                     .max_w(px(384.0))
-                    .child("This device doesn't have any resident credentials stored yet. Create passkeys on websites to see them here."),
+                    .child("此设备尚未保存驻留凭据。请先在网站上创建通行密钥，之后即可在此查看。"),
             )
     }
 
@@ -650,7 +650,7 @@ impl PasskeysViewModel {
                                             } else if !cred.rp_id.is_empty() {
                                                 cred.rp_id.clone()
                                             } else {
-                                                "Unknown Service".to_string()
+                                                "未知服务".to_string()
                                             }),
                                     )
                                     .child(
@@ -694,8 +694,8 @@ impl Render for PasskeysViewModel {
         if !device_connected {
             let theme = cx.theme();
             return PageView::build(
-                "Passkeys",
-                "Manage your security PIN and the FIDO credentials (passkeys) stored on your device.",
+                "通行密钥",
+                "管理设备上的安全 PIN 及 FIDO 凭据（通行密钥）。",
                 self.render_no_device(theme).into_any_element(),
                 theme,
             )
@@ -712,8 +712,8 @@ impl Render for PasskeysViewModel {
         if !has_fido {
             let theme = cx.theme();
             return PageView::build(
-                "Passkeys",
-                "Manage your security PIN and the FIDO credentials (passkeys) stored on your device.",
+                "通行密钥",
+                "管理设备上的安全 PIN 及 FIDO 凭据（通行密钥）。",
                 self.render_not_supported(theme).into_any_element(),
                 theme,
             )
@@ -733,8 +733,8 @@ impl Render for PasskeysViewModel {
             .size_full()
             .relative()
             .child(PageView::build(
-                "Passkeys",
-                "Manage your security PIN and the FIDO credentials (passkeys) stored on your device.",
+                "通行密钥",
+                "管理设备上的安全 PIN 及 FIDO 凭据（通行密钥）。",
                 content.into_any_element(),
                 theme,
             ))

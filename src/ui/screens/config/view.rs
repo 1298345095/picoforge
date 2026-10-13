@@ -23,7 +23,7 @@ impl ConfigViewModel {
         let content = v_flex()
             .gap_4()
             .child(
-                v_flex().gap_2().child("Vendor Preset").child(
+                v_flex().gap_2().child("厂商预设").child(
                     Select::new(&self.vendor_select)
                         .bg(rgb(0x222225))
                         .w_full()
@@ -36,7 +36,7 @@ impl ConfigViewModel {
                     .grid_cols(2)
                     .gap_4()
                     .child(
-                        v_flex().gap_2().child("Vendor ID (HEX)").child(
+                        v_flex().gap_2().child("厂商 ID（十六进制）").child(
                             Input::new(&self.vid_input)
                                 .font_family("Mono")
                                 .bg(rgb(0x222225))
@@ -44,7 +44,7 @@ impl ConfigViewModel {
                         ),
                     )
                     .child(
-                        v_flex().gap_2().child("Product ID (HEX)").child(
+                        v_flex().gap_2().child("产品 ID（十六进制）").child(
                             Input::new(&self.pid_input)
                                 .font_family("Mono")
                                 .bg(rgb(0x222225))
@@ -59,14 +59,14 @@ impl ConfigViewModel {
                     .grid_cols(2)
                     .gap_4()
                     .child(
-                        v_flex().gap_2().child("Product Name").child(
+                        v_flex().gap_2().child("产品名称").child(
                             Input::new(&self.product_name_input)
                                 .bg(rgb(0x222225))
                                 .disabled(is_fido),
                         ),
                     )
                     .child(
-                        v_flex().gap_2().child("Manufacturer").child(
+                        v_flex().gap_2().child("制造商").child(
                             Input::new(&self.manufacturer_input)
                                 .bg(rgb(0x222225))
                                 .disabled(is_fido),
@@ -75,8 +75,8 @@ impl ConfigViewModel {
             );
 
         Card::new()
-            .title("Identity")
-            .description("USB Identification settings")
+            .title("设备标识")
+            .description("USB 标识设置")
             .icon(Icon::default().path("icons/tag.svg"))
             .child(content)
     }
@@ -95,14 +95,14 @@ impl ConfigViewModel {
                 .grid_cols(2)
                 .gap_4()
                 .child(
-                    v_flex().gap_2().child("LED GPIO Pin").child(
+                    v_flex().gap_2().child("LED GPIO 引脚").child(
                         Input::new(&self.led_gpio_input)
                             .bg(rgb(0x222225))
                             .disabled(hardware_config_disabled),
                     ),
                 )
                 .child(
-                    v_flex().gap_2().child("LED Driver").child(
+                    v_flex().gap_2().child("LED 驱动").child(
                         Select::new(&self.led_driver_select)
                             .w_full()
                             .bg(rgb(0x222225))
@@ -115,7 +115,7 @@ impl ConfigViewModel {
         // it, so only surface it for RS-Key. Fixes red/green swap on GRB panels.
         if is_rskey {
             content = content.child(
-                v_flex().gap_2().child("LED Colour Order").child(
+                v_flex().gap_2().child("LED 颜色顺序").child(
                     Select::new(&self.led_order_select)
                         .w_full()
                         .bg(rgb(0x222225))
@@ -142,7 +142,7 @@ impl ConfigViewModel {
             content = content
                 .child(div().h_px().bg(theme.border))
                 .child(
-                    v_flex().gap_2().child("Brightness (0-15)").child(
+                    v_flex().gap_2().child("亮度（0–15）").child(
                         h_flex()
                             .items_center()
                             .gap_4()
@@ -155,7 +155,7 @@ impl ConfigViewModel {
                                 div()
                                     .text_xs()
                                     .text_color(theme.muted_foreground)
-                                    .child(format!("Level {}", brightness)),
+                                    .child(format!("等级 {}", brightness)),
                             ),
                     ),
                 )
@@ -164,11 +164,11 @@ impl ConfigViewModel {
                         .items_center()
                         .justify_between()
                         .child(
-                            v_flex().gap_0p5().child("LED Dimmable").child(
+                            v_flex().gap_0p5().child("LED 可调光").child(
                                 div()
                                     .text_sm()
                                     .text_color(theme.muted_foreground)
-                                    .child("Allow brightness adjustment"),
+                                    .child("允许调节亮度"),
                             ),
                         )
                         .child(
@@ -183,11 +183,11 @@ impl ConfigViewModel {
                         .items_center()
                         .justify_between()
                         .child(
-                            v_flex().gap_0p5().child("LED Steady Mode").child(
+                            v_flex().gap_0p5().child("LED 常亮模式").child(
                                 div()
                                     .text_sm()
                                     .text_color(theme.muted_foreground)
-                                    .child("Keep LED on constantly"),
+                                    .child("使 LED 持续点亮"),
                             ),
                         )
                         .child(
@@ -200,15 +200,15 @@ impl ConfigViewModel {
         }
 
         Card::new()
-            .title("LED Settings")
-            .description("Adjust visual feedback behavior")
+            .title("LED 设置")
+            .description("调整灯光反馈方式")
             .icon(Icon::default().path("icons/microchip.svg"))
             .child(content)
     }
 
     fn render_touch_card(&self, _theme: &Theme, is_fido: bool) -> impl IntoElement {
         let content = v_flex().gap_4().child(
-            v_flex().gap_2().child("Touch Timeout (seconds)").child(
+            v_flex().gap_2().child("触摸超时（秒）").child(
                 Input::new(&self.touch_timeout_input)
                     .bg(rgb(0x222225))
                     .disabled(is_fido),
@@ -216,8 +216,8 @@ impl ConfigViewModel {
         );
 
         Card::new()
-            .title("Touch & Timing")
-            .description("Configure interaction timeouts")
+            .title("触摸与计时")
+            .description("配置交互超时时间")
             .icon(Icon::default().path("icons/settings.svg"))
             .child(content)
     }
@@ -239,11 +239,11 @@ impl ConfigViewModel {
                 .items_center()
                 .justify_between()
                 .child(
-                    v_flex().gap_0p5().child("Power Cycle on Reset").child(
+                    v_flex().gap_0p5().child("重置时重新上电").child(
                         div()
                             .text_sm()
                             .text_color(theme.muted_foreground)
-                            .child("Restart device on reset"),
+                            .child("重置时重新启动设备"),
                     ),
                 )
                 .child(
@@ -255,8 +255,8 @@ impl ConfigViewModel {
         );
 
         Card::new()
-            .title("Device Options")
-            .description("Toggle advanced features")
+            .title("设备选项")
+            .description("启用或禁用高级功能")
             .icon(Icon::default().path("icons/settings.svg"))
             .child(content)
     }
@@ -275,11 +275,11 @@ impl ConfigViewModel {
                 .items_center()
                 .justify_between()
                 .child(
-                    v_flex().gap_0p5().child("Global Steady Mode").child(
+                    v_flex().gap_0p5().child("全局常亮模式").child(
                         div()
                             .text_sm()
                             .text_color(theme.muted_foreground)
-                            .child("Keep status LEDs on constantly"),
+                            .child("使状态 LED 持续点亮"),
                     ),
                 )
                 .child(
@@ -317,7 +317,7 @@ impl ConfigViewModel {
 
             let color_name = LedColor::from_u8(color_val)
                 .map(|c| c.label())
-                .unwrap_or("Unknown");
+                .unwrap_or("未知");
 
             rows = rows.child(
                 h_flex()
@@ -380,8 +380,8 @@ impl ConfigViewModel {
         }
 
         Card::new()
-            .title("Status LED Colors")
-            .description("Configure LED colors and brightness per device state")
+            .title("状态 LED 颜色")
+            .description("按设备状态配置 LED 颜色和亮度")
             .icon(Icon::default().path("icons/palette.svg"))
             .child(rows)
     }
@@ -424,9 +424,9 @@ impl ConfigViewModel {
                         .child(v_flex().gap_0p5().child(name).child(
                             div().text_sm().text_color(theme.muted_foreground).child(
                                 if is_supported {
-                                    "Supported"
+                                    "支持"
                                 } else {
-                                    "Not Supported by Firmware"
+                                    "固件不支持"
                                 },
                             ),
                         ))
@@ -440,8 +440,8 @@ impl ConfigViewModel {
         }
 
         Card::new()
-            .title("USB Applications")
-            .description("Enable or disable specific USB features")
+            .title("USB 应用")
+            .description("启用或禁用特定 USB 功能")
             .icon(Icon::default().path("icons/microchip.svg"))
             .child(rows)
     }
@@ -461,24 +461,24 @@ impl ConfigViewModel {
                 .text_color(rgb(0xf59e0b))
                 .w_full()
                 .max_w(px(800.0))
-                .child("Advanced. HID off disables all FIDO2/U2F; CCID off disables every smart-card app (and the rescue applet). The firmware always keeps one of them, so you can't lock yourself out here."),
+                .child("高级设置：关闭 HID 将禁用全部 FIDO2/U2F 功能；关闭 CCID 将禁用全部智能卡应用（包括救援模块）。固件会始终保留其中一种接口，避免设备失去访问能力。"),
         );
 
         let interfaces = [
             (
-                "CCID (Smart Card)",
+                "CCID（智能卡）",
                 0x01u8,
-                "Required for the rescue applet and all smart-card apps",
+                "救援模块和所有智能卡应用均需要此接口",
             ),
             (
-                "HID (FIDO)",
+                "HID（FIDO）",
                 0x04u8,
-                "FIDO/CTAP transport — off disables all FIDO2 and U2F",
+                "FIDO/CTAP 通信接口——关闭后将禁用所有 FIDO2 和 U2F 功能",
             ),
             (
-                "KB (Keyboard)",
+                "KB（键盘）",
                 0x08u8,
-                "OTP keyboard — Yubico OTP and static-password typing",
+                "OTP 键盘——用于输入 Yubico OTP 和静态密码",
             ),
         ];
 
@@ -528,8 +528,8 @@ impl ConfigViewModel {
         }
 
         Card::new()
-            .title("Hardware Endpoints")
-            .description("Toggle low-level USB interfaces")
+            .title("硬件接口")
+            .description("启用或禁用底层 USB 接口")
             .icon(Icon::default().path("icons/cpu.svg"))
             .child(rows)
     }
@@ -542,8 +542,8 @@ impl Render for ConfigViewModel {
         if !has_device {
             let theme = cx.theme();
             return PageView::build(
-                "Configuration",
-                "Customize device settings and behavior.",
+                "配置",
+                "自定义设备设置和工作方式。",
                 div()
                     .flex()
                     .items_center()
@@ -555,7 +555,7 @@ impl Render for ConfigViewModel {
                     .child(
                         div()
                             .text_color(theme.muted_foreground)
-                            .child("No Device Connected"),
+                            .child("未连接设备"),
                     ),
                 theme,
             );
@@ -616,7 +616,7 @@ impl Render for ConfigViewModel {
             h_flex().justify_end().pt_4().child(
                 Button::new("apply-changes")
                     .icon(Icon::default().path("icons/save.svg"))
-                    .child("Apply Changes")
+                    .child("应用更改")
                     .disabled(self.loading || hardware_config_disabled)
                     .custom(
                         ButtonCustomVariant::new(cx)
@@ -633,8 +633,8 @@ impl Render for ConfigViewModel {
 
         let theme = cx.theme();
         PageView::build(
-            "Configuration",
-            "Customize device settings and behavior.",
+            "配置",
+            "自定义设备设置和工作方式。",
             inner,
             theme,
         )

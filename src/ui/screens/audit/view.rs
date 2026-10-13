@@ -83,7 +83,7 @@ impl AuditViewModel {
             return div()
                 .text_sm()
                 .text_color(theme.muted_foreground)
-                .child("Read the journal to view the security-event log.")
+                .child("读取日志以查看安全事件记录。")
                 .into_any_element();
         };
 
@@ -108,7 +108,7 @@ impl AuditViewModel {
                 div()
                     .text_sm()
                     .text_color(theme.muted_foreground)
-                    .child("No live entries in the window.")
+                    .child("当前范围内没有实时记录。")
                     .into_any_element(),
             );
         }
@@ -119,16 +119,16 @@ impl AuditViewModel {
                 v_flex()
                     .gap_1()
                     .child(div().text_sm().child(format!(
-                        "Window [{}, {}) — {} entries, {} folded into the epoch",
+                        "范围 [{}, {}) — {} 条记录，其中 {} 条已合并到纪元",
                         j.start,
                         j.seq_next,
                         j.entries.len(),
                         j.start,
                     )))
-                    .child(mono(theme, format!("epoch  {}", short_hex(&j.epoch))))
+                    .child(mono(theme, format!("纪元  {}", short_hex(&j.epoch))))
                     .child(mono(
                         theme,
-                        format!("head   {}  (chain OK)", short_hex(&j.head)),
+                        format!("链头   {}  （链验证通过）", short_hex(&j.head)),
                     )),
             )
             .child(div().h(px(1.)).bg(theme.border))
@@ -141,14 +141,14 @@ impl AuditViewModel {
             return div()
                 .text_sm()
                 .text_color(theme.muted_foreground)
-                .child("Verify a signed checkpoint to prove the journal is authentic and the device genuine.")
+                .child("验证签名检查点，以确认日志真实且设备可信。")
                 .into_any_element();
         };
 
         let (label, color) = if v.authentic() {
-            ("Authentic ✓", theme.green)
+            ("验证通过 ✓", theme.green)
         } else {
-            ("Not trusted ✗", theme.danger)
+            ("不可信 ✗", theme.danger)
         };
 
         let kv = |k: &str, val: String| {
@@ -164,8 +164,8 @@ impl AuditViewModel {
         };
 
         let expected_line = match v.expected_match {
-            Some(true) => Some(("Pinned key", "matches ✓".to_string())),
-            Some(false) => Some(("Pinned key", "MISMATCH ✗".to_string())),
+            Some(true) => Some(("已固定的密钥", "匹配 ✓".to_string())),
+            Some(false) => Some(("已固定的密钥", "不匹配 ✗".to_string())),
             None => None,
         };
 
@@ -179,14 +179,14 @@ impl AuditViewModel {
                     .child(div().font_semibold().text_color(color).child(label)),
             )
             .child(div().text_sm().child(format!(
-                "Signature {} · chain head {} · checkpoint over seq {}",
-                if v.signature_ok { "OK" } else { "INVALID" },
-                if v.head_matches { "bound" } else { "MISMATCH" },
+                "签名 {} · 链头 {} · 检查点序号 {}",
+                if v.signature_ok { "有效" } else { "无效" },
+                if v.head_matches { "bound" } else { "不匹配" },
                 v.seq_signed,
             )))
-            .child(kv("Attestation key", v.pubkey_hex.clone()))
+            .child(kv("证明密钥", v.pubkey_hex.clone()))
             .child(kv(
-                "Fingerprint (pin later with Expected key)",
+                "指纹（稍后可通过“预期密钥”固定）",
                 v.fingerprint.clone(),
             ));
         if let Some((k, val)) = expected_line {
@@ -198,8 +198,8 @@ impl AuditViewModel {
 
 impl Render for AuditViewModel {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        const TITLE: &str = "Audit";
-        const SUBTITLE: &str = "Tamper-evident security journal.";
+        const TITLE: &str = "安全审计";
+        const SUBTITLE: &str = "防篡改安全日志。";
 
         if let Some((heading, body)) = self.gate(cx).message() {
             let theme = cx.theme();
@@ -207,19 +207,19 @@ impl Render for AuditViewModel {
                 .into_any_element();
         }
 
-        let read_btn = PFButton::new("Read journal")
+        let read_btn = PFButton::new("读取日志")
             .id("audit-read")
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, window, cx| this.open_read(window, cx)));
-        let verify_btn = PFButton::new("Verify")
+        let verify_btn = PFButton::new("验证")
             .id("audit-verify")
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, window, cx| this.open_verify(window, cx)));
         let toggle_btn = match self.enabled {
             Some(true) => Some(
-                PFButton::new("Disable")
+                PFButton::new("禁用")
                     .id("audit-disable")
                     .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
                     .disabled(self.loading)
@@ -228,7 +228,7 @@ impl Render for AuditViewModel {
                     ),
             ),
             Some(false) => Some(
-                PFButton::new("Enable")
+                PFButton::new("启用")
                     .id("audit-enable")
                     .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
                     .disabled(self.loading)
@@ -246,13 +246,13 @@ impl Render for AuditViewModel {
         let (dot, status_text) = match self.enabled {
             Some(true) => (
                 theme.green,
-                "On — recording security events to the key's flash.",
+                "已启用——安全事件将记录到密钥的闪存中。",
             ),
             Some(false) => (
                 theme.muted_foreground,
-                "Off — journalling is opt-in; nothing is being recorded.",
+                "已关闭——安全日志需主动启用，目前不会记录事件。",
             ),
-            None => (theme.muted_foreground, "Reading status…"),
+            None => (theme.muted_foreground, "正在读取状态…"),
         };
         let status_body = h_flex()
             .gap_2()
@@ -261,8 +261,8 @@ impl Render for AuditViewModel {
             .child(div().text_sm().child(status_text.to_string()));
         let status_card = {
             let mut c = Card::new()
-                .title("Journalling")
-                .description("Turn the tamper-evident journal on or off (PIN + touch)")
+                .title("日志记录")
+                .description("开启或关闭防篡改日志（需要 PIN 和触摸确认）")
                 .icon(Icon::default().path("icons/book-open.svg"));
             if let Some(btn) = toggle_btn {
                 c = c.header_right(btn);
@@ -271,15 +271,15 @@ impl Render for AuditViewModel {
         };
 
         let journal_card = Card::new()
-            .title("Audit journal")
-            .description("Hash-chained security events (boots, FIDO ops, PIN, config)")
+            .title("审计日志")
+            .description("采用哈希链记录安全事件（启动、FIDO 操作、PIN、配置）")
             .icon(Icon::default().path("icons/scroll-text.svg"))
             .header_right(read_btn)
             .child(journal_body);
 
         let verify_card = Card::new()
-            .title("Checkpoint verification")
-            .description("DEVK-signed proof of authenticity and device identity")
+            .title("检查点验证")
+            .description("由 DEVK 签名的真实性与设备身份凭证")
             .icon(Icon::default().path("icons/shield-check.svg"))
             .header_right(verify_btn)
             .child(verify_body);

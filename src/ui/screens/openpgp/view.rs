@@ -58,9 +58,9 @@ impl OpenPgpViewModel {
         let d = self.loading;
         let has_fp = k.fingerprint.chars().any(|c| c != '0');
         let status = if k.present {
-            format!("{} · touch {}", k.algo, if k.touch { "on" } else { "off" })
+            format!("{} · 触摸 {}", k.algo, if k.touch { "on" } else { "off" })
         } else {
-            "Empty".to_string()
+            "空".to_string()
         };
 
         let mut col = v_flex()
@@ -98,7 +98,7 @@ impl OpenPgpViewModel {
                     .gap_2()
                     .flex_wrap()
                     .child(
-                        PFButton::new(if k.present { "Regenerate" } else { "Generate" })
+                        PFButton::new(if k.present { "重新生成" } else { "生成" })
                             .id(format!("gen-{}", slot.label()))
                             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
                             .disabled(d)
@@ -107,7 +107,7 @@ impl OpenPgpViewModel {
                             })),
                     )
                     .child(
-                        PFButton::new("Touch policy")
+                        PFButton::new("触摸策略")
                             .id(format!("touch-{}", slot.label()))
                             .disabled(d)
                             .on_click(cx.listener(move |this, _, window, cx| {
@@ -150,7 +150,7 @@ impl OpenPgpViewModel {
 impl Render for OpenPgpViewModel {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         const TITLE: &str = "OpenPGP";
-        const SUBTITLE: &str = "OpenPGP smart card — keys, PINs, and cardholder.";
+        const SUBTITLE: &str = "OpenPGP 智能卡——密钥、PIN 与持卡人信息。";
 
         if let Some((heading, body)) = self.gate(cx).message() {
             let theme = cx.theme();
@@ -178,32 +178,32 @@ impl Render for OpenPgpViewModel {
             )
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, _, cx| this.refresh(cx)));
-        let change_user_btn = PFButton::new("Change User PIN")
+        let change_user_btn = PFButton::new("修改用户 PIN")
             .id("pgp-change-user")
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .on_click(cx.listener(|this, _, window, cx| this.open_change_user_pin(window, cx)));
-        let change_admin_btn = PFButton::new("Change Admin PIN")
+        let change_admin_btn = PFButton::new("修改管理员 PIN")
             .id("pgp-change-admin")
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .on_click(cx.listener(|this, _, window, cx| this.open_change_admin_pin(window, cx)));
-        let unblock_code_btn = PFButton::new("Reset code")
+        let unblock_code_btn = PFButton::new("重置码")
             .id("pgp-unblock-code")
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .on_click(cx.listener(|this, _, window, cx| this.open_unblock_with_code(window, cx)));
-        let unblock_admin_btn = PFButton::new("Admin PIN")
+        let unblock_admin_btn = PFButton::new("管理员 PIN")
             .id("pgp-unblock-admin")
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .on_click(cx.listener(|this, _, window, cx| this.open_unblock_with_admin(window, cx)));
-        let reset_code_btn = PFButton::new("Set reset code")
+        let reset_code_btn = PFButton::new("设置重置码")
             .id("pgp-set-rc")
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .on_click(cx.listener(|this, _, window, cx| this.open_set_reset_code(window, cx)));
-        let cardholder_btn = PFButton::new("Edit")
+        let cardholder_btn = PFButton::new("编辑")
             .id("pgp-cardholder")
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .on_click(cx.listener(|this, _, window, cx| this.open_cardholder(window, cx)));
         let reset_btn = Button::new("pgp-reset")
-            .label("Reset OpenPGP applet")
+            .label("重置 OpenPGP 模块")
             .danger()
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, window, cx| this.open_reset_dialog(window, cx)));
@@ -228,16 +228,16 @@ impl Render for OpenPgpViewModel {
                         .grid_cols(2)
                         .gap_4()
                         .child(kv(
-                            "Version",
+                            "版本",
                             format!("{}.{}.{}", i.version[0], i.version[1], i.version[2]),
                             theme,
                         ))
-                        .child(kv("Serial", serial, theme))
-                        .child(kv("Name", field(&i.name), theme))
-                        .child(kv("Login", field(&i.login), theme))
+                        .child(kv("序列号", serial, theme))
+                        .child(kv("姓名", field(&i.name), theme))
+                        .child(kv("登录名", field(&i.login), theme))
                         .child(kv("URL", field(&i.url), theme))
                         .child(kv(
-                            "PIN tries (user / reset / admin)",
+                            "PIN 剩余尝试次数（用户 / 重置 / 管理员）",
                             format!("{} / {} / {}", i.pw1_retries, i.rc_retries, i.pw3_retries),
                             theme,
                         ))
@@ -246,80 +246,80 @@ impl Render for OpenPgpViewModel {
                 None => div()
                     .text_sm()
                     .text_color(theme.muted_foreground)
-                    .child("Reading card…")
+                    .child("正在读取智能卡…")
                     .into_any_element(),
             };
             Card::new()
-                .title("Card information")
-                .description("OpenPGP card status")
+                .title("智能卡信息")
+                .description("OpenPGP 智能卡状态")
                 .icon(Icon::default().path("icons/cpu.svg"))
                 .header_right(refresh_btn)
                 .child(body)
         };
 
         let keys_card = Card::new()
-            .title("Keys")
-            .description("Signature / Encryption / Authentication slots")
+            .title("密钥")
+            .description("签名 / 加密 / 身份认证密钥槽")
             .icon(Icon::default().path("icons/key.svg"))
             .child(v_flex().gap_2().children(key_rows));
 
         let pin_card = Card::new()
-            .title("PINs")
-            .description("User PIN (PW1) and admin PIN (PW3)")
+            .title("PIN 管理")
+            .description("用户 PIN（PW1）和管理员 PIN（PW3）")
             .icon(Icon::default().path("icons/lock.svg"))
             .child(
                 v_flex()
                     .gap_2()
                     .child(self.action_row(
-                        "User PIN",
-                        "Change the user PIN (PW1)",
+                        "用户 PIN",
+                        "修改用户 PIN（PW1）",
                         change_user_btn,
                         theme,
                     ))
                     .child(self.action_row(
-                        "Admin PIN",
-                        "Change the admin PIN (PW3)",
+                        "管理员 PIN",
+                        "修改管理员 PIN（PW3）",
                         change_admin_btn,
                         theme,
                     ))
                     .child(self.action_row(
-                        "Unblock user PIN",
-                        "Reset a blocked user PIN with the reset code",
+                        "解锁用户 PIN",
+                        "使用重置码解除用户 PIN 锁定",
                         unblock_code_btn,
                         theme,
                     ))
                     .child(self.action_row(
-                        "Unblock via admin",
-                        "Reset a blocked user PIN with the admin PIN",
+                        "通过管理员解锁",
+                        "使用管理员 PIN 解除用户 PIN 锁定",
                         unblock_admin_btn,
                         theme,
                     ))
                     .child(self.action_row(
-                        "Reset code",
-                        "Set or clear the reset code (needs the admin PIN)",
+                        "重置码",
+                        "设置或清除重置码（需管理员 PIN）",
                         reset_code_btn,
                         theme,
                     )),
             );
 
         let cardholder_card = Card::new()
-            .title("Cardholder")
-            .description("Name, login, and URL stored on the card")
+            .title("持卡人")
+            .description("存储在智能卡中的姓名、登录名与 URL")
             .icon(Icon::default().path("icons/user.svg"))
             .child(self.action_row(
-                "Cardholder details",
-                "Edit the cardholder name, login, and URL",
+                "持卡人资料",
+                "编辑持卡人姓名、登录名与 URL",
                 cardholder_btn,
                 theme,
             ));
 
         let reset_card = Card::new()
-            .title("Reset")
-            .description("Erase all OpenPGP keys and data")
+            .title("重置")
+            .description("清除全部 OpenPGP 密钥和数据")
             .icon(Icon::default().path("icons/trash.svg"))
             .child(self.action_row(
-                "Factory reset OpenPGP",
-                "Blocks both PINs then wipes everything. Cannot be undone.",
+                "恢复 OpenPGP 出厂设置",
+                "将锁定两个 PIN 并清除全部数据，此操作不可撤销。",
                 reset_btn,
                 theme,
             ));
