@@ -81,13 +81,13 @@ impl PasskeysViewModel {
                         this.cached_pin = Some(pin);
                         this.credentials = creds;
                         let _ = dialog_handle.update(cx, |d, cx| {
-                            d.set_success("Storage unlocked successfully.".to_string(), cx);
+                            d.set_success("存储区解锁成功。".to_string(), cx);
                         });
                     }
                     Err(e) => {
                         log::error!("Failed to unlock storage: {}", e);
                         let _ = dialog_handle.update(cx, |d, cx| {
-                            d.set_error(format!("Failed to unlock: {}", e), cx);
+                            d.set_error(format!("解锁失败：{}", e), cx);
                         });
                     }
                 }
@@ -129,7 +129,7 @@ impl PasskeysViewModel {
                 Ok(_) => {
                     log::info!("Credential deleted successfully.");
                     let _ = dialog_handle.update(cx, |d, cx| {
-                        d.set_success("Credential deleted successfully.".to_string(), cx);
+                        d.set_success("凭据已删除。".to_string(), cx);
                     });
                     this.sync_fido_state(None, cx);
                 }
@@ -137,7 +137,7 @@ impl PasskeysViewModel {
                     log::error!("Error deleting credential: {}", e);
                     this.loading = false;
                     let _ = dialog_handle.update(cx, |d, cx| {
-                        d.set_error(format!("Error deleting: {}", e), cx);
+                        d.set_error(format!("删除失败：{}", e), cx);
                     });
                     cx.notify();
                 }
@@ -198,11 +198,11 @@ impl PasskeysViewModel {
         let view_handle = cx.entity().downgrade();
 
         dialog::open_pin_prompt(
-            "Unlock Storage",
-            "Enter your device PIN to view saved passkeys",
-            "Enter FIDO PIN",
+            "解锁存储区",
+            "请输入设备 PIN 以查看已保存的通行密钥",
+            "输入 FIDO PIN",
             None,
-            "Unlock",
+            "解锁",
             window,
             cx,
             move |pin, dialog_handle, cx| {
@@ -226,9 +226,9 @@ impl PasskeysViewModel {
         let view_handle = cx.entity().downgrade();
 
         dialog::open_confirm(
-            "Delete Passkey",
-            format!("Are you sure you want to delete the passkey for {}?", name),
-            "Delete",
+            "删除通行密钥",
+            format!("确定删除 {} 的通行密钥吗？", name),
+            "删除",
             gpui_component::button::ButtonVariant::Danger,
             window,
             cx,
@@ -285,7 +285,7 @@ impl PasskeysViewModel {
                 Ok(msg) => {
                     log::info!("PIN configured: {}", msg);
                     let _ = dialog_handle.update(cx, |d, cx| {
-                        d.set_success("PIN configured successfully.".to_string(), cx);
+                        d.set_success("PIN 设置成功。".to_string(), cx);
                     });
                     this.sync_fido_state(None, cx);
                 }
@@ -293,7 +293,7 @@ impl PasskeysViewModel {
                     log::error!("PIN setup failed: {}", e);
                     this.loading = false;
                     let _ = dialog_handle.update(cx, |d, cx| {
-                        d.set_error(format!("Error: {}", e), cx);
+                        d.set_error(format!("错误：{}", e), cx);
                     });
                     cx.notify();
                 }
@@ -324,17 +324,17 @@ impl PasskeysViewModel {
 
         let current_pin = cx.new(|cx| {
             gpui_component::input::InputState::new(window, cx)
-                .placeholder("Enter current PIN")
+                .placeholder("输入当前 PIN")
                 .masked(true)
         });
         let new_pin = cx.new(|cx| {
             gpui_component::input::InputState::new(window, cx)
-                .placeholder("Enter new PIN")
+                .placeholder("输入新 PIN")
                 .masked(true)
         });
         let confirm_pin = cx.new(|cx| {
             gpui_component::input::InputState::new(window, cx)
-                .placeholder("Confirm new PIN")
+                .placeholder("确认新 PIN")
                 .masked(true)
         });
 
@@ -363,14 +363,14 @@ impl PasskeysViewModel {
                 if !new_val.is_empty() {
                     if new_val != confirm_val {
                         let _ = view2.update(cx, |_, cx| {
-                            cx.emit(PasskeysEvent::Notification("PINs do not match".to_string()));
+                            cx.emit(PasskeysEvent::Notification("两次输入的 PIN 不一致".to_string()));
                         });
                         return;
                     }
                     if new_val.len() < min_len as usize {
                         let _ = view2.update(cx, |_, cx| {
                             cx.emit(PasskeysEvent::Notification(format!(
-                                "PIN must be at least {} characters",
+                                "PIN 长度至少为 {} 个字符",
                                 min_len
                             )));
                         });
@@ -379,7 +379,7 @@ impl PasskeysViewModel {
                 }
                 window.close_dialog(cx);
                 let status_handle =
-                    dialog::open_status_dialog("Update Minimum PIN Length", window, cx);
+                    dialog::open_status_dialog("修改 PIN 最短长度", window, cx);
                 let _ = view2.update(cx, |this, cx| {
                     this.update_min_length(current_val, min_len, new_val, status_handle, cx);
                 });
@@ -396,9 +396,9 @@ impl PasskeysViewModel {
             let _ = window;
 
             dialog
-                .title("Update Minimum PIN Length")
+                .title("修改 PIN 最短长度")
                 .child(
-                    "Set the minimum allowed PIN length (4-63 characters) and enter a new PIN that meets this requirement.",
+                    "设置 PIN 最短长度（4～63 个字符），并输入符合要求的新 PIN。",
                 )
                 .child(
                     gpui_component::v_flex()
@@ -410,15 +410,15 @@ impl PasskeysViewModel {
                                 .child(label_view.clone())
                                 .child(gpui_component::slider::Slider::new(&slider_handle))
                         )
-                        .child("Current PIN")
+                        .child("当前 PIN")
                         .child(gpui_component::input::Input::new(&current))
                         .child(
                              gpui_component::v_flex()
                                 .gap_2()
-                                .child(format!("New PIN (min {} chars)", current_min))
+                                .child(format!("新 PIN（至少 {} 个字符）", current_min))
                                 .child(gpui_component::input::Input::new(&new_pin_value))
                         )
-                        .child("Confirm New PIN")
+                        .child("确认新 PIN")
                         .child(gpui_component::input::Input::new(&confirm)),
                 )
                 .on_ok(move |_, window, cx| {
@@ -429,11 +429,11 @@ impl PasskeysViewModel {
                     let submit_clone = submit_for_btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("update")
                             .primary()
-                            .label("Update")
+                            .label("更新")
                             .on_click(move |_, window, cx| {
                                 submit_clone(window, cx);
                             }),
@@ -469,7 +469,7 @@ impl PasskeysViewModel {
                 Ok(msg) => {
                     log::info!("PIN changed: {}", msg);
                     let _ = dialog_handle.update(cx, |d, cx| {
-                        d.set_success("PIN changed successfully.".to_string(), cx);
+                        d.set_success("PIN 修改成功。".to_string(), cx);
                     });
                     this.sync_fido_state(Some(new_for_sync), cx);
                 }
@@ -477,7 +477,7 @@ impl PasskeysViewModel {
                     log::error!("PIN change failed: {}", e);
                     this.loading = false;
                     let _ = dialog_handle.update(cx, |d, cx| {
-                        d.set_error(format!("Error: {}", e), cx);
+                        d.set_error(format!("错误：{}", e), cx);
                     });
                     cx.notify();
                 }
@@ -515,7 +515,7 @@ impl PasskeysViewModel {
                 let _ = weak_self.update(cx, |this, cx| {
                     this.loading = false;
                     let _ = status_handle.update(cx, |status_content, cx| {
-                        status_content.set_error(format!("Failed to set length: {}", e), cx);
+                        status_content.set_error(format!("设置长度失败：{}", e), cx);
                     });
                     cx.notify();
                 });
@@ -535,7 +535,7 @@ impl PasskeysViewModel {
                         log::info!("Minimum length and PIN updated successfully.");
                         let _ = status_handle.update(cx, |status_content, cx| {
                             status_content
-                                .set_success("Minimum length and PIN updated.".to_string(), cx);
+                                .set_success("PIN 最短长度及 PIN 已更新。".to_string(), cx);
                         });
                         this.sync_fido_state(Some(new_pin_for_sync), cx);
                     }
@@ -544,7 +544,7 @@ impl PasskeysViewModel {
                         this.loading = false;
                         let _ = status_handle.update(cx, |status_content, cx| {
                             status_content
-                                .set_error(format!("Length set, but PIN change failed: {}", e), cx);
+                                .set_error(format!("已设置最短长度，但修改 PIN 失败：{}", e), cx);
                         });
                         cx.notify();
                     }
@@ -554,7 +554,7 @@ impl PasskeysViewModel {
                     log::info!("Minimum PIN length updated to {}.", min_len);
                     let _ = status_handle.update(cx, |status_content, cx| {
                         status_content
-                            .set_success(format!("Minimum length updated to {}.", min_len), cx);
+                            .set_success(format!("最短长度已更新为 {}。", min_len), cx);
                     });
                     this.sync_fido_state(None, cx);
                 });
@@ -592,7 +592,7 @@ impl PasskeysViewModel {
                         this.csr_pem = Some(pem);
                         let _ = status_handle.update(cx, |status_content, cx| {
                             status_content.set_success(
-                                "CSR retrieved from device. Click \"View CSR\" to inspect or save it.".to_string(),
+                                "已从设备获取 CSR。点击“查看 CSR”可查看或保存。".to_string(),
                                 cx,
                             );
                         });
@@ -600,7 +600,7 @@ impl PasskeysViewModel {
                     Err(e) => {
                         log::error!("Failed to retrieve CSR: {}", e);
                         let _ = status_handle.update(cx, |status_content, cx| {
-                            status_content.set_error(format!("Failed to retrieve CSR: {}", e), cx);
+                            status_content.set_error(format!("获取 CSR 失败：{}", e), cx);
                         });
                     }
                 }
@@ -623,7 +623,7 @@ impl PasskeysViewModel {
         cx.notify();
 
         log::info!(
-            "Uploading enterprise attestation certificate from: {}",
+            "正在上传企业证明证书，来源：{}",
             cert_path
         );
         let weak_self = cx.entity().downgrade();
@@ -648,7 +648,7 @@ impl PasskeysViewModel {
                     Err(e) => {
                         log::error!("Certificate upload failed: {}", e);
                         let _ = dialog_handle.update(cx, |d, cx| {
-                            d.set_error(format!("Upload failed: {}", e), cx);
+                            d.set_error(format!("上传失败：{}", e), cx);
                         });
                     }
                 }
@@ -661,11 +661,11 @@ impl PasskeysViewModel {
         let view_handle = cx.entity().downgrade();
 
         dialog::open_pin_prompt(
-            "Enable Enterprise Attestation",
-            "Enter your device PIN to enable enterprise attestation",
-            "Enter FIDO PIN",
-            Some("This operation is irreversible"),
-            "Enable",
+            "启用企业证明",
+            "请输入设备 PIN 以启用企业证明",
+            "输入 FIDO PIN",
+            Some("此操作不可撤销"),
+            "启用",
             window,
             cx,
             move |pin, dialog_handle, cx| {
@@ -709,7 +709,7 @@ impl PasskeysViewModel {
                     log::error!("Failed to enable EA: {}", e);
                     this.loading = false;
                     let _ = dialog_handle.update(cx, |d, cx| {
-                        d.set_error(format!("Error: {}", e), cx);
+                        d.set_error(format!("错误：{}", e), cx);
                     });
                     cx.notify();
                 }
@@ -725,7 +725,7 @@ impl PasskeysViewModel {
             files: true,
             directories: false,
             multiple: false,
-            prompt: Some("Select Certificate File (PEM or DER)".into()),
+            prompt: Some("选择证书文件（PEM 或 DER）".into()),
         });
 
         self._task = Some(cx.spawn(async move |_, cx| {
@@ -739,11 +739,11 @@ impl PasskeysViewModel {
 
             let _ = cx.update_window(window_handle, |_, window, cx| {
                 dialog::open_pin_prompt(
-                    "Upload Certificate",
-                    "Enter your device PIN to upload the certificate to the device",
-                    "Enter FIDO PIN",
+                    "上传证书",
+                    "请输入设备 PIN 以将证书上传到设备",
+                    "输入 FIDO PIN",
                     None,
-                    "Upload",
+                    "上传",
                     window,
                     cx,
                     move |pin, dialog_handle, cx| {
@@ -760,9 +760,9 @@ impl PasskeysViewModel {
         let view_handle = cx.entity().downgrade();
 
         dialog::open_confirm(
-            "Factory Reset Device",
-            "Are you sure you want to completely erase your device? This will permanently delete ALL passkeys, credentials, and your PIN. This action cannot be undone.".to_string(),
-            "Reset Device",
+            "恢复设备出厂设置",
+            "确定要彻底清除设备数据吗？这将永久删除所有通行密钥、凭据和 PIN，且无法撤销。".to_string(),
+            "重置设备",
             gpui_component::button::ButtonVariant::Danger,
             window,
             cx,
@@ -781,12 +781,12 @@ impl PasskeysViewModel {
         }
         self.loading = true;
 
-        let status_handle = dialog::open_status_dialog("Resetting Device...", window, cx);
+        let status_handle = dialog::open_status_dialog("正在重置设备…", window, cx);
         let weak_self = cx.entity().downgrade();
 
         let _ = status_handle.update(cx, |d, cx| {
             d.set_loading(
-                "Unplug your security key, then plug it back in within 10 seconds.",
+                "请拔出安全密钥，并在 10 秒内重新插入。",
                 cx,
             );
         });
@@ -818,7 +818,7 @@ impl PasskeysViewModel {
                     this.loading = false;
                     let _ = status_handle.update(cx, |d, cx| {
                         d.set_error(
-                            "Timeout waiting for device reconnection. Reset canceled.".to_string(),
+                            "等待设备重新连接超时，已取消重置。".to_string(),
                             cx,
                         );
                     });
@@ -828,7 +828,7 @@ impl PasskeysViewModel {
             }
 
             let _ = status_handle.update(cx, |d, cx| {
-                d.set_loading("Touch your security key now to confirm the reset...", cx);
+                d.set_loading("请立即触摸安全密钥以确认重置…", cx);
             });
 
             let result = cx
@@ -844,7 +844,7 @@ impl PasskeysViewModel {
                         d.set_success(msg, cx);
                     });
                     cx.emit(PasskeysEvent::Notification(
-                        "Device reset successfully".into(),
+                        "设备重置成功".into(),
                     ));
                     this.lock_storage(cx);
                     this.sync_fido_state(None, cx);
@@ -853,7 +853,7 @@ impl PasskeysViewModel {
                     log::error!("Error resetting device: {}", e);
                     this.loading = false;
                     let _ = status_handle.update(cx, |d, cx| {
-                        d.set_error(format!("Reset failed: {}", e), cx);
+                        d.set_error(format!("重置失败：{}", e), cx);
                     });
                     cx.notify();
                 }
@@ -870,7 +870,7 @@ impl PasskeysViewModel {
         if let Some(pin) = &self.cached_pin {
             self.open_delete_dialog(&cred, pin.clone(), window, cx);
         } else {
-            window.push_notification("Session expired, please unlock again.", cx);
+            window.push_notification("会话已过期，请重新解锁。", cx);
             self.lock_storage(cx);
         }
     }
@@ -886,7 +886,7 @@ impl PasskeysViewModel {
         } else if !cred.rp_id.is_empty() {
             cred.rp_id.clone()
         } else {
-            "Passkey Details".to_string()
+            "通行密钥详情".to_string()
         };
         let rp_id = cred.rp_id.clone();
         let user_name = cred.user_name.clone();
@@ -976,7 +976,7 @@ impl PasskeysViewModel {
                         div()
                             .text_sm()
                             .text_color(theme.muted_foreground)
-                            .child("Credential details for user"),
+                            .child("用户凭据详情"),
                     )
                     .child(
                         div()
@@ -1007,10 +1007,10 @@ impl PasskeysViewModel {
                                 .gap_4()
                                 .child(header_row)
                                 .child(separator)
-                                .child(detail_field("Display Name", display_name.clone(), false))
-                                .child(detail_field("User ID (Hex)", user_id.clone(), true))
+                                .child(detail_field("显示名称", display_name.clone(), false))
+                                .child(detail_field("用户 ID（十六进制）", user_id.clone(), true))
                                 .child(detail_field(
-                                    "Credential ID (Hex)",
+                                    "凭据 ID（十六进制）",
                                     credential_id.clone(),
                                     true,
                                 )),
@@ -1028,6 +1028,6 @@ struct SliderLabel {
 impl Render for SliderLabel {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let val = self.slider.read(cx).value().start() as u8;
-        format!("Minimum PIN Length ({})", val)
+        format!("PIN 最短长度（{}）", val)
     }
 }

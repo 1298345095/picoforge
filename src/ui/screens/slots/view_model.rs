@@ -37,7 +37,7 @@ fn current_acc(
         None => {
             let _ = view.update(cx, |_, cx| {
                 cx.emit(SlotsEvent::Notification(
-                    "Access code must be empty or up to 12 hex chars (6 bytes)".into(),
+                    "访问码可以留空，或最多输入 12 位十六进制字符（6 字节）".into(),
                 ));
             });
             None
@@ -144,7 +144,7 @@ impl SlotsViewModel {
     pub(super) fn open_swap_dialog(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let acc_input = cx.new(|cx| {
             gpui_component::input::InputState::new(window, cx)
-                .placeholder("Access code (hex, if a slot is protected)")
+                .placeholder("访问码（十六进制；插槽受保护时填写）")
         });
         let view = cx.entity().downgrade();
         let submit = {
@@ -155,7 +155,7 @@ impl SlotsViewModel {
                     return;
                 };
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Swap Slots", window, cx);
+                let status = dialog::open_status_dialog("交换插槽", window, cx);
                 let _ = view.update(cx, |this, cx| this.execute_swap(acc, status, cx));
             })
         };
@@ -164,13 +164,13 @@ impl SlotsViewModel {
             let submit_ok = submit.clone();
             let submit_btn = submit.clone();
             dialog
-                .title("Swap Slots")
-                .child("Swap the contents of slot 1 and slot 2?")
+                .title("交换插槽")
+                .child("确定交换插槽 1 和插槽 2 的内容吗？")
                 .child(
                     gpui_component::v_flex()
                         .gap_2()
                         .pb_2()
-                        .child("Access code (hex, leave empty if unprotected)")
+                        .child("访问码（十六进制；未保护时留空）")
                         .child(gpui_component::input::Input::new(&acc_input)),
                 )
                 .on_ok(move |_, window, cx| {
@@ -181,11 +181,11 @@ impl SlotsViewModel {
                     let submit = submit_btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("swap")
                             .primary()
-                            .label("Swap")
+                            .label("交换")
                             .on_click(move |_, window, cx| submit(window, cx)),
                     ]
                 })
@@ -201,7 +201,7 @@ impl SlotsViewModel {
         self.run_op(
             cx,
             move |_| DeviceRepo::otp_swap_blocking(acc),
-            "Slots swapped.",
+            "插槽已交换。",
             move |cx, msg, ok| {
                 let _ = status.update(cx, |d, cx| {
                     if ok {
@@ -222,7 +222,7 @@ impl SlotsViewModel {
     ) {
         let acc_input = cx.new(|cx| {
             gpui_component::input::InputState::new(window, cx)
-                .placeholder("Access code (hex, if the slot is protected)")
+                .placeholder("访问码（十六进制；插槽受保护时填写）")
         });
         let view = cx.entity().downgrade();
         let submit = {
@@ -233,7 +233,7 @@ impl SlotsViewModel {
                     return;
                 };
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Delete Slot", window, cx);
+                let status = dialog::open_status_dialog("删除插槽配置", window, cx);
                 let _ = view.update(cx, |this, cx| this.execute_delete(slot, acc, status, cx));
             })
         };
@@ -242,15 +242,15 @@ impl SlotsViewModel {
             let submit_ok = submit.clone();
             let submit_btn = submit.clone();
             dialog
-                .title(format!("Delete Slot {slot}"))
+                .title(format!("删除插槽 {slot} 的配置"))
                 .child(format!(
-                    "Erase the configuration in slot {slot}? This cannot be undone."
+                    "确定清除插槽 {slot} 的配置吗？此操作不可撤销。"
                 ))
                 .child(
                     gpui_component::v_flex()
                         .gap_2()
                         .pb_2()
-                        .child("Access code (hex, leave empty if unprotected)")
+                        .child("访问码（十六进制；未保护时留空）")
                         .child(gpui_component::input::Input::new(&acc_input)),
                 )
                 .on_ok(move |_, window, cx| {
@@ -261,11 +261,11 @@ impl SlotsViewModel {
                     let submit = submit_btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("delete")
                             .danger()
-                            .label("Delete")
+                            .label("删除")
                             .on_click(move |_, window, cx| submit(window, cx)),
                     ]
                 })
@@ -282,7 +282,7 @@ impl SlotsViewModel {
         self.run_op(
             cx,
             move |_| DeviceRepo::otp_delete_blocking(slot, acc),
-            "Slot deleted.",
+            "插槽配置已删除。",
             move |cx, msg, ok| {
                 let _ = status.update(cx, |d, cx| {
                     if ok {
@@ -342,7 +342,7 @@ impl SlotsViewModel {
         cx: &mut Context<Self>,
     ) {
         let challenge = cx.new(|cx| {
-            gpui_component::input::InputState::new(window, cx).placeholder("Challenge (hex)")
+            gpui_component::input::InputState::new(window, cx).placeholder("质询数据（十六进制）")
         });
         let view = cx.entity().downgrade();
         let submit = {
@@ -354,14 +354,14 @@ impl SlotsViewModel {
                     _ => {
                         let _ = view.update(cx, |_, cx| {
                             cx.emit(SlotsEvent::Notification(
-                                "Enter a valid hex challenge".into(),
+                                "请输入有效的十六进制质询数据".into(),
                             ));
                         });
                         return;
                     }
                 };
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Challenge-Response", window, cx);
+                let status = dialog::open_status_dialog("质询-响应", window, cx);
                 let _ = view.update(cx, |this, cx| this.execute_test(slot, chal, status, cx));
             })
         };
@@ -370,13 +370,13 @@ impl SlotsViewModel {
             let submit_ok = submit.clone();
             let submit_btn = submit.clone();
             dialog
-                .title(format!("Test Slot {slot}"))
-                .child("Send a challenge; the slot answers with its HMAC-SHA1 response.")
+                .title(format!("测试插槽 {slot}"))
+                .child("发送质询数据，插槽将返回 HMAC-SHA1 响应。")
                 .child(
                     gpui_component::v_flex()
                         .gap_2()
                         .pb_2()
-                        .child("Challenge (hex)")
+                        .child("质询数据（十六进制）")
                         .child(gpui_component::input::Input::new(&challenge)),
                 )
                 .on_ok(move |_, window, cx| {
@@ -387,11 +387,11 @@ impl SlotsViewModel {
                     let submit = submit_btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("run")
                             .primary()
-                            .label("Run")
+                            .label("执行")
                             .on_click(move |_, window, cx| submit(window, cx)),
                     ]
                 })
@@ -421,7 +421,7 @@ impl SlotsViewModel {
                 match res {
                     Ok(resp) => {
                         let _ = status.update(cx, |d, cx| {
-                            d.set_success(format!("Response: {}", hex::encode(resp)), cx)
+                            d.set_success(format!("响应：{}", hex::encode(resp)), cx)
                         });
                     }
                     Err(e) => {
