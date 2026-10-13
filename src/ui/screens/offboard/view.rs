@@ -60,15 +60,15 @@ impl OffboardViewModel {
         }
 
         let (verdict, vcolor) = if !r.all_ok() {
-            ("Finished with failures", theme.danger)
+            ("已完成，但部分操作失败", theme.danger)
         } else if r.signed {
-            ("All wiped · receipt signed", theme.green)
+            ("已全部清除 · 回执已签名", theme.green)
         } else {
-            ("All wiped · receipt unsigned", theme.muted_foreground)
+            ("已全部清除 · 回执未签名", theme.muted_foreground)
         };
 
         let save_btn = Button::new("off-save")
-            .label("Save receipt (JSON)")
+            .label("保存回执（JSON）")
             .outline()
             .on_click(cx.listener(|this, _, window, cx| this.save_receipt(window, cx)));
 
@@ -90,15 +90,15 @@ impl OffboardViewModel {
                         div()
                             .text_xs()
                             .text_color(theme.muted_foreground)
-                            .child("Attestation fingerprint (match against inventory)"),
+                            .child("证明指纹（请与资产记录核对）"),
                     )
                     .child(div().font_family("monospace").text_xs().child(fp.clone())),
             );
         }
 
         Card::new()
-            .title("Offboard receipt")
-            .description("Per-applet wipe results and the signed checkpoint")
+            .title("设备清除回执")
+            .description("各模块清除结果及签名检查点")
             .icon(Icon::default().path("icons/scroll-text.svg"))
             .header_right(save_btn)
             .child(col)
@@ -108,8 +108,8 @@ impl OffboardViewModel {
 
 impl Render for OffboardViewModel {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        const TITLE: &str = "Offboard";
-        const SUBTITLE: &str = "Guided full-device wipe with a signed receipt.";
+        const TITLE: &str = "安全清除";
+        const SUBTITLE: &str = "引导式整机数据清除，并生成签名回执。";
 
         if let Some((heading, body)) = self.gate(cx).message() {
             let theme = cx.theme();
@@ -121,7 +121,7 @@ impl Render for OffboardViewModel {
         let report_card = self.report.as_ref().map(|_| self.report_card(cx));
 
         let offboard_btn = Button::new("off-run")
-            .label("Offboard device")
+            .label("清除设备数据")
             .danger()
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, window, cx| this.open_confirm(window, cx)));
@@ -129,8 +129,8 @@ impl Render for OffboardViewModel {
         let theme = cx.theme();
 
         let warn_card = Card::new()
-            .title("Decommission")
-            .description("Wipe every applet and finish with a cryptographic receipt")
+            .title("退役设备")
+            .description("清除所有应用模块，并生成加密签名回执")
             .icon(Icon::default().path("icons/trash-2.svg"))
             .child(
                 v_flex()
@@ -142,7 +142,7 @@ impl Render for OffboardViewModel {
                             .bg(rgb(0x18181b))
                             .text_color(rgb(0xf59e0b))
                             .text_sm()
-                            .child("Erases OTP, OATH, PIV, OpenPGP, the FIDO seed, passkeys, PINs, and org attestation. Irreversible. Needs the CCID interface and several touches."),
+                            .child("将清除 OTP、OATH、PIV、OpenPGP、FIDO 种子、通行密钥、PIN 和组织证明。此操作不可撤销，需要 CCID 接口及多次触摸确认。"),
                     )
                     .child(
                         h_flex()
@@ -155,8 +155,8 @@ impl Render for OffboardViewModel {
                             .child(
                                 v_flex()
                                     .gap_0p5()
-                                    .child(div().font_medium().child(format!("Offboard {serial}")))
-                                    .child(div().text_sm().text_color(theme.muted_foreground).child("Wipe all applets, then sign a receipt")),
+                                    .child(div().font_medium().child(format!("清除设备 {serial}")))
+                                    .child(div().text_sm().text_color(theme.muted_foreground).child("清除所有应用模块后签署回执")),
                             )
                             .child(offboard_btn),
                     ),

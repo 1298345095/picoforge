@@ -60,8 +60,8 @@ impl AttestationViewModel {
 
 impl Render for AttestationViewModel {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        const TITLE: &str = "Attestation";
-        const SUBTITLE: &str = "Organisation (enterprise) attestation key and chain.";
+        const TITLE: &str = "设备证明";
+        const SUBTITLE: &str = "组织（企业）证明密钥及证书链。";
 
         if let Some((heading, body)) = self.gate(cx).message() {
             let theme = cx.theme();
@@ -84,13 +84,13 @@ impl Render for AttestationViewModel {
             )
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, _, cx| this.refresh(cx)));
-        let import_btn = PFButton::new(if installed { "Replace" } else { "Import" })
+        let import_btn = PFButton::new(if installed { "替换" } else { "导入" })
             .id("att-import")
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, window, cx| this.open_import(window, cx)));
         let clear_btn = Button::new("att-clear")
-            .label("Remove")
+            .label("移除")
             .danger()
             .disabled(self.loading || !installed)
             .on_click(cx.listener(|this, _, window, cx| this.open_clear(window, cx)));
@@ -112,9 +112,9 @@ impl Render for AttestationViewModel {
                                     .child("●"),
                             )
                             .child(div().text_sm().child(if s.installed {
-                                "Org attestation installed"
+                                "已安装组织证明"
                             } else {
-                                "Not installed — self-signed device certificate in use"
+                                "未安装——当前使用设备自签名证书"
                             })),
                     );
                     if let Some(h) = &s.chain_hash {
@@ -125,7 +125,7 @@ impl Render for AttestationViewModel {
                                     div()
                                         .text_xs()
                                         .text_color(theme.muted_foreground)
-                                        .child("Chain hash"),
+                                        .child("证书链哈希"),
                                 )
                                 .child(div().font_family("monospace").text_xs().child(h.clone())),
                         );
@@ -135,33 +135,33 @@ impl Render for AttestationViewModel {
                 None => div()
                     .text_sm()
                     .text_color(theme.muted_foreground)
-                    .child("Reading attestation state…")
+                    .child("正在读取证明状态…")
                     .into_any_element(),
             };
             Card::new()
-                .title("Attestation status")
-                .description("Whether an org attestation key + chain is installed")
+                .title("证明状态")
+                .description("是否已安装组织证明密钥和证书链")
                 .icon(Icon::default().path("icons/building-2.svg"))
                 .header_right(refresh_btn)
                 .child(body)
         };
 
         let actions_card = Card::new()
-            .title("Manage")
-            .description("Provision or remove the org attestation")
+            .title("管理")
+            .description("配置或移除组织证明")
             .icon(Icon::default().path("icons/shield-check.svg"))
             .child(
                 v_flex()
                     .gap_2()
                     .child(self.action_row(
-                        "Import key + chain",
-                        "P-256 key (PEM/DER) and certificate chain (PIN or touch)",
+                        "导入密钥和证书链",
+                        "P-256 密钥（PEM/DER）及证书链（需要 PIN 或触摸确认）",
                         import_btn,
                         theme,
                     ))
                     .child(self.action_row(
-                        "Remove attestation",
-                        "Revert to the self-signed device certificate",
+                        "移除设备证明",
+                        "恢复使用设备自签名证书",
                         clear_btn,
                         theme,
                     )),

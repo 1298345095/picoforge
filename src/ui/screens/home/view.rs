@@ -70,13 +70,13 @@ impl HomeViewModel {
         // not the whole chip — label it honestly and surface objects + chip size.
         let is_rskey = status.firmware_type == FirmwareType::RSKey;
         let flash_label = if is_rskey {
-            "Storage (credentials & config)"
+            "存储空间（凭据与配置）"
         } else {
-            "Flash Memory"
+            "闪存"
         };
 
         Card::new()
-            .title("Device Information")
+            .title("设备信息")
             .icon(Icon::default().path("icons/cpu.svg"))
             .child(
                 v_flex()
@@ -86,20 +86,15 @@ impl HomeViewModel {
                             .grid()
                             .grid_cols(2)
                             .gap_4()
+                            .child(Self::render_kv("序列号", info.serial.clone(), theme, true))
                             .child(Self::render_kv(
-                                "Serial Number",
-                                info.serial.clone(),
-                                theme,
-                                true,
-                            ))
-                            .child(Self::render_kv(
-                                "Firmware Version",
+                                "固件版本",
                                 Self::firmware_version_label(status),
                                 theme,
                                 true,
                             ))
                             .child(Self::render_kv(
-                                "Firmware Type",
+                                "固件类型",
                                 status.firmware_type.to_string(),
                                 theme,
                                 false,
@@ -111,15 +106,15 @@ impl HomeViewModel {
                                 true,
                             ))
                             .child(Self::render_kv(
-                                "Manufacturer",
+                                "制造商",
                                 info.manufacturer
                                     .clone()
-                                    .unwrap_or_else(|| "Unknown".to_string()),
+                                    .unwrap_or_else(|| "未知".to_string()),
                                 theme,
                                 false,
                             ))
                             .child(Self::render_kv(
-                                "Product Name",
+                                "产品名称",
                                 config.product_name.clone(),
                                 theme,
                                 false,
@@ -142,7 +137,7 @@ impl HomeViewModel {
                                         {
                                             format!("{:.0} / {:.0} KB", used, total)
                                         } else {
-                                            "Not Available".to_string()
+                                            "不可用".to_string()
                                         },
                                     )),
                             )
@@ -163,7 +158,7 @@ impl HomeViewModel {
                                         .child(
                                             div()
                                                 .text_color(theme.muted_foreground)
-                                                .child("Stored objects"),
+                                                .child("已存储对象"),
                                         )
                                         .child(
                                             div()
@@ -180,7 +175,7 @@ impl HomeViewModel {
                                         .child(
                                             div()
                                                 .text_color(theme.muted_foreground)
-                                                .child("Flash chip"),
+                                                .child("闪存芯片"),
                                         )
                                         .child(
                                             div()
@@ -195,7 +190,7 @@ impl HomeViewModel {
 
     fn render_fido_info(fido: Option<&FidoDeviceInfo>, theme: &Theme) -> impl IntoElement {
         Card::new()
-            .title("FIDO2 Information")
+            .title("FIDO2 信息")
             .icon(Icon::default().path("icons/shield.svg"))
             .child(if let Some(fido) = fido {
                 v_flex()
@@ -221,11 +216,7 @@ impl HomeViewModel {
                             .items_center()
                             .flex_wrap()
                             .gap_1()
-                            .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("FIDO Versions"),
-                            )
+                            .child(div().text_color(theme.muted_foreground).child("FIDO 版本"))
                             .child(div().text_color(theme.foreground).child(
                                 if fido.versions.is_empty() {
                                     "N/A".to_string()
@@ -239,29 +230,25 @@ impl HomeViewModel {
                         h_flex()
                             .justify_between()
                             .items_center()
-                            .child(div().text_color(theme.muted_foreground).child("PIN Set"))
+                            .child(div().text_color(theme.muted_foreground).child("PIN 状态"))
                             .child({
                                 let pin_set =
                                     fido.options.get("clientPin").copied().unwrap_or(false);
-                                Tag::new(if pin_set { "Set" } else { "Not Set" }).active(pin_set)
+                                Tag::new(if pin_set { "已设置" } else { "未设置" }).active(pin_set)
                             }),
                     )
                     .child(
                         h_flex()
                             .justify_between()
                             .items_center()
-                            .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("Resident Keys"),
-                            )
+                            .child(div().text_color(theme.muted_foreground).child("驻留密钥"))
                             .child({
                                 let resident_keys_supported =
                                     fido.options.get("rk").copied().unwrap_or(false);
                                 Tag::new(if resident_keys_supported {
-                                    "Supported"
+                                    "支持"
                                 } else {
-                                    "Not Supported"
+                                    "不支持"
                                 })
                                 .active(resident_keys_supported)
                             }),
@@ -273,7 +260,7 @@ impl HomeViewModel {
                             .child(
                                 div()
                                     .text_color(theme.muted_foreground)
-                                    .child("Min PIN Length"),
+                                    .child("PIN 最短长度"),
                             )
                             .child(
                                 div()
@@ -286,18 +273,14 @@ impl HomeViewModel {
                         h_flex()
                             .justify_between()
                             .items_center()
-                            .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("Enterprise attestation"),
-                            )
+                            .child(div().text_color(theme.muted_foreground).child("企业证明"))
                             .child(div().font_medium().text_color(theme.foreground).child({
                                 let enterprise_attestation_set =
                                     fido.options.get("ep").copied().unwrap_or(false);
                                 Tag::new(if enterprise_attestation_set {
-                                    "Set"
+                                    "已设置"
                                 } else {
-                                    "Not Set"
+                                    "未设置"
                                 })
                                 .active(enterprise_attestation_set)
                             })),
@@ -307,11 +290,7 @@ impl HomeViewModel {
                             h_flex()
                                 .justify_between()
                                 .items_center()
-                                .child(
-                                    div()
-                                        .text_color(theme.muted_foreground)
-                                        .child("Remaining Credentials"),
-                                )
+                                .child(div().text_color(theme.muted_foreground).child("剩余凭据数"))
                                 .child(
                                     div().font_medium().text_color(theme.foreground).child(
                                         fido.remaining_discoverable_credentials
@@ -326,7 +305,7 @@ impl HomeViewModel {
                 div()
                     .text_sm()
                     .text_color(theme.muted_foreground)
-                    .child("FIDO information not available")
+                    .child("无法获取 FIDO 信息")
                     .into_any_element()
             })
     }
@@ -336,7 +315,7 @@ impl HomeViewModel {
         let has_fido_config =
             status.firmware_type == FirmwareType::RSKey || status.method != DeviceMethod::Fido;
         Card::new()
-            .title("LED Configuration")
+            .title("LED 配置")
             .icon(Icon::default().path("icons/microchip.svg"))
             .child(if !has_fido_config {
                 v_flex()
@@ -353,7 +332,7 @@ impl HomeViewModel {
                         div()
                             .text_sm()
                             .text_color(theme.muted_foreground)
-                            .child("Information is not available in Fido only communication mode."),
+                            .child("仅 FIDO 通信模式下无法获取此信息。"),
                     )
                     .into_any_element()
             } else {
@@ -366,7 +345,7 @@ impl HomeViewModel {
                             .child(
                                 div()
                                     .text_color(theme.muted_foreground)
-                                    .child("LED GPIO Pin"),
+                                    .child("LED GPIO 引脚"),
                             )
                             .child(
                                 config
@@ -375,24 +354,20 @@ impl HomeViewModel {
                                     .or_else(|| {
                                         config
                                             .effective_led_gpio
-                                            .map(|g| format!("GPIO {g} (default)"))
+                                            .map(|g| format!("GPIO {g}（默认）"))
                                     })
-                                    .unwrap_or_else(|| "Firmware default".into()),
+                                    .unwrap_or_else(|| "固件默认值".into()),
                             ),
                     )
                     .child(
                         h_flex()
                             .justify_between()
-                            .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("LED Brightness"),
-                            )
+                            .child(div().text_color(theme.muted_foreground).child("LED 亮度"))
                             .child(
                                 config
                                     .led_brightness
                                     .map(|b| b.to_string())
-                                    .unwrap_or_else(|| "Firmware default".into()),
+                                    .unwrap_or_else(|| "固件默认值".into()),
                             ),
                     )
                     .child(
@@ -401,7 +376,7 @@ impl HomeViewModel {
                             .child(
                                 div()
                                     .text_color(theme.muted_foreground)
-                                    .child("Presence Touch Timeout"),
+                                    .child("触摸确认超时"),
                             )
                             .child(
                                 config
@@ -410,21 +385,17 @@ impl HomeViewModel {
                                     .or_else(|| {
                                         config
                                             .effective_touch_timeout
-                                            .map(|t| format!("{t}s (default)"))
+                                            .map(|t| format!("{t} 秒（默认）"))
                                     })
-                                    .unwrap_or_else(|| "Firmware default".into()),
+                                    .unwrap_or_else(|| "固件默认值".into()),
                             ),
                     )
                     .child(
                         h_flex()
                             .justify_between()
+                            .child(div().text_color(theme.muted_foreground).child("LED 可调光"))
                             .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("LED Dimmable"),
-                            )
-                            .child(
-                                Tag::new(if config.led_dimmable { "Yes" } else { "No" })
+                                Tag::new(if config.led_dimmable { "是" } else { "否" })
                                     .active(config.led_dimmable),
                             ),
                     )
@@ -434,10 +405,10 @@ impl HomeViewModel {
                             .child(
                                 div()
                                     .text_color(theme.muted_foreground)
-                                    .child("LED Steady Mode"),
+                                    .child("LED 常亮模式"),
                             )
                             .child(
-                                Tag::new(if config.led_steady { "On" } else { "Off" })
+                                Tag::new(if config.led_steady { "开" } else { "关" })
                                     .active(config.led_steady),
                             ),
                     )
@@ -447,7 +418,7 @@ impl HomeViewModel {
 
     fn render_security_status(status: &FullDeviceStatus, theme: &Theme) -> impl IntoElement {
         Card::new()
-            .title("Security Status")
+            .title("安全状态")
             .icon(Icon::default().path("icons/shield-check.svg"))
             .child(
                 v_flex()
@@ -457,7 +428,7 @@ impl HomeViewModel {
                         h_flex()
                             .justify_between()
                             .items_center()
-                            .child(div().text_color(theme.muted_foreground).child("Boot Mode"))
+                            .child(div().text_color(theme.muted_foreground).child("启动模式"))
                             .child(
                                 h_flex()
                                     .gap_2()
@@ -475,9 +446,9 @@ impl HomeViewModel {
                                     })
                                     .child(
                                         Tag::new(if status.secure_boot {
-                                            "Secure Boot"
+                                            "安全启动"
                                         } else {
-                                            "Development"
+                                            "开发模式"
                                         })
                                         .active(status.secure_boot),
                                     ),
@@ -487,16 +458,12 @@ impl HomeViewModel {
                         h_flex()
                             .justify_between()
                             .items_center()
-                            .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("Debug Interface"),
-                            )
+                            .child(div().text_color(theme.muted_foreground).child("调试接口"))
                             .child(div().font_medium().text_color(theme.foreground).child(
                                 if status.secure_lock {
-                                    "Read-out Locked"
+                                    "已禁止读取"
                                 } else {
-                                    "Debug Enabled"
+                                    "已启用调试"
                                 },
                             )),
                     )
@@ -504,16 +471,12 @@ impl HomeViewModel {
                         h_flex()
                             .justify_between()
                             .items_center()
-                            .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("Secure Lock"),
-                            )
+                            .child(div().text_color(theme.muted_foreground).child("安全锁定"))
                             .child(
                                 Tag::new(if status.secure_lock {
-                                    "Acknowledged"
+                                    "已确认"
                                 } else {
-                                    "Pending"
+                                    "待处理"
                                 })
                                 .active(status.secure_lock),
                             ),
@@ -530,8 +493,8 @@ impl Render for HomeViewModel {
         let columns = if is_wide { 2 } else { 1 };
 
         PageView::build(
-            "Device Overview",
-            "Quick view of your device status and specifications.",
+            "设备概览",
+            "快速查看设备状态与规格信息。",
             if !connected {
                 div()
                     .flex()
@@ -544,7 +507,7 @@ impl Render for HomeViewModel {
                     .child(
                         div()
                             .text_color(cx.theme().muted_foreground)
-                            .child("No Device Connected"),
+                            .child("未连接设备"),
                     )
                     .into_any_element()
             } else {

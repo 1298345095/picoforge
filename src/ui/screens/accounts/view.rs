@@ -129,7 +129,7 @@ impl AccountsViewModel {
                 .items_center()
                 .child(
                     Button::new(SharedString::from(format!("calc-{id}")))
-                        .label("Generate")
+                        .label("生成")
                         .outline()
                         .on_click(cx.listener(move |this, _, _, cx| {
                             this.calculate(id.clone(), period, cx);
@@ -142,7 +142,7 @@ impl AccountsViewModel {
                 .items_center()
                 .child(
                     Button::new(SharedString::from(format!("touch-{id}")))
-                        .label("Touch to reveal")
+                        .label("触摸设备以显示")
                         .outline()
                         .on_click(cx.listener(move |this, _, _, cx| {
                             this.calculate(id.clone(), period, cx);
@@ -167,8 +167,8 @@ impl AccountsViewModel {
 
 impl Render for AccountsViewModel {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        const TITLE: &str = "Accounts";
-        const SUBTITLE: &str = "One-time password accounts (OATH).";
+        const TITLE: &str = "账户";
+        const SUBTITLE: &str = "一次性密码账户（OATH）管理。";
 
         if let Some((heading, body)) = self.gate(cx).message() {
             let theme = cx.theme();
@@ -179,13 +179,13 @@ impl Render for AccountsViewModel {
         if self.needs_password && !self.loaded {
             let unlock = Button::new("unlock-oath")
                 .icon(Icon::default().path("icons/lock-open.svg"))
-                .label("Unlock")
+                .label("解锁")
                 .primary()
                 .on_click(cx.listener(|this, _, window, cx| this.open_unlock_dialog(window, cx)));
             let theme = cx.theme();
             let card = Card::new()
-                .title("Accounts")
-                .description("Password-protected")
+                .title("账户")
+                .description("受密码保护")
                 .icon(Icon::default().path("icons/key.svg"))
                 .child(
                     v_flex()
@@ -193,16 +193,12 @@ impl Render for AccountsViewModel {
                         .justify_center()
                         .gap_3()
                         .py_6()
-                        .child(
-                            div()
-                                .font_semibold()
-                                .child("Accounts are password-protected"),
-                        )
+                        .child(div().font_semibold().child("账户受密码保护"))
                         .child(
                             div()
                                 .text_sm()
                                 .text_color(theme.muted_foreground)
-                                .child("Enter the OATH password to view your codes."),
+                                .child("请输入 OATH 密码以查看验证码。"),
                         )
                         .child(unlock),
                 );
@@ -224,9 +220,9 @@ impl Render for AccountsViewModel {
         }
 
         let password_label = if self.password_is_set() {
-            "Change password"
+            "修改密码"
         } else {
-            "Set password"
+            "设置密码"
         };
         let theme = cx.theme();
         let password_btn =
@@ -246,12 +242,12 @@ impl Render for AccountsViewModel {
             .on_click(cx.listener(|this, _, _, cx| this.refresh(cx)));
         let add_btn = Button::new("add-account")
             .icon(Icon::default().path("icons/plus.svg"))
-            .label("Add account")
+            .label("添加账户")
             .primary()
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, window, cx| this.open_add_dialog(window, cx)));
         let reset_btn = Button::new("reset-oath")
-            .label("Reset OATH applet")
+            .label("重置 OATH 模块")
             .danger()
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, window, cx| this.open_reset_dialog(window, cx)));
@@ -263,8 +259,8 @@ impl Render for AccountsViewModel {
             .child(add_btn);
         let list = if rows.is_empty() {
             empty_state(
-                "No accounts yet",
-                "Add an account from an otpauth:// URI or a base32 secret.".into(),
+                "暂无账户",
+                "可通过 otpauth:// URI 或 Base32 密钥添加账户。".into(),
                 theme,
             )
         } else {
@@ -272,14 +268,14 @@ impl Render for AccountsViewModel {
         };
 
         let accounts_card = Card::new()
-            .title("Accounts")
-            .description(format!("{} stored", accounts.len()))
+            .title("账户")
+            .description(format!("已保存 {} 个", accounts.len()))
             .icon(Icon::default().path("icons/users-round.svg"))
             .header_right(toolbar)
             .child(list);
         let reset_card = Card::new()
-            .title("Reset")
-            .description("Erase all accounts and the OATH password")
+            .title("重置")
+            .description("清除全部账户和 OATH 密码")
             .icon(Icon::default().path("icons/trash.svg"))
             .child(
                 h_flex()
@@ -288,10 +284,13 @@ impl Render for AccountsViewModel {
                     .child(
                         v_flex()
                             .gap_1()
-                            .child(div().font_medium().child("Reset OATH applet"))
-                            .child(div().text_sm().text_color(theme.muted_foreground).child(
-                                "Deletes every account and the password. Cannot be undone.",
-                            )),
+                            .child(div().font_medium().child("重置 OATH 模块"))
+                            .child(
+                                div()
+                                    .text_sm()
+                                    .text_color(theme.muted_foreground)
+                                    .child("将删除所有账户及密码，此操作无法撤销。"),
+                            ),
                     )
                     .child(reset_btn),
             );

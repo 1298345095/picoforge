@@ -177,31 +177,31 @@ impl Render for AppSidebar {
             // features, then device-wide system actions (Offboard sits just
             // above About as a bottom-of-list decommission action).
             .child(
-                SidebarGroup::new("Device").child(SidebarMenu::new().child(self.menu_item(
+                SidebarGroup::new("设备").child(SidebarMenu::new().child(self.menu_item(
                     cx,
-                    "Home",
+                    "首页",
                     "icons/house.svg",
                     Destination::Home,
                 ))),
             )
             .child(
-                SidebarGroup::new("Credentials").child(
+                SidebarGroup::new("凭据").child(
                     SidebarMenu::new()
                         .child(self.menu_item(
                             cx,
-                            "Passkeys",
+                            "通行密钥",
                             "icons/key-round.svg",
                             Destination::Passkeys,
                         ))
                         .child(self.menu_item(
                             cx,
-                            "Accounts",
+                            "账户",
                             "icons/users-round.svg",
                             Destination::Accounts,
                         ))
                         .child(self.menu_item(
                             cx,
-                            "Slots",
+                            "插槽",
                             "icons/touch-app.svg",
                             Destination::Slots,
                         ))
@@ -215,48 +215,48 @@ impl Render for AppSidebar {
                 ),
             )
             .child(
-                SidebarGroup::new("Protection").child(
+                SidebarGroup::new("安全防护").child(
                     SidebarMenu::new()
                         .child(self.menu_item(
                             cx,
-                            "Audit",
+                            "安全审计",
                             "icons/book-open.svg",
                             Destination::Audit,
                         ))
-                        .child(self.menu_item(cx, "Backup", "icons/save.svg", Destination::Backup))
-                        .child(self.menu_item(cx, "Lock", "icons/lock.svg", Destination::Lock))
+                        .child(self.menu_item(cx, "备份", "icons/save.svg", Destination::Backup))
+                        .child(self.menu_item(cx, "锁定", "icons/lock.svg", Destination::Lock))
                         .child(self.menu_item(
                             cx,
-                            "Attestation",
+                            "设备证明",
                             "icons/building-2.svg",
                             Destination::Attestation,
                         )),
                 ),
             )
             .child(
-                SidebarGroup::new("System").child(
+                SidebarGroup::new("系统").child(
                     SidebarMenu::new()
                         .child(self.menu_item(
                             cx,
-                            "Configuration",
+                            "配置",
                             "icons/settings.svg",
                             Destination::Configuration,
                         ))
                         .child(self.menu_item(
                             cx,
-                            "Security",
+                            "安全",
                             "icons/shield-check.svg",
                             Destination::Security,
                         ))
                         .child(self.menu_item(
                             cx,
-                            "Offboard",
+                            "安全清除",
                             "icons/trash-2.svg",
                             Destination::Offboard,
                         ))
                         .child(self.menu_item_icon_name(
                             cx,
-                            "About",
+                            "关于",
                             IconName::Info,
                             Destination::About,
                         )),
@@ -311,19 +311,23 @@ impl Render for AppSidebar {
                                     .text_size(px(12.))
                                     .font_weight(gpui::FontWeight::MEDIUM)
                                     .text_color(muted_foreground)
-                                    .child("Device Status"),
+                                    .child("设备状态"),
                             )
                             .child({
                                 let (text, color_bg, color_text) = if let Some(s) = &status_owned {
                                     if s.method == DeviceMethod::Fido {
-                                        ("Online - FIDO".to_string(), rgb(0xf59e0b), rgb(0xffffff))
+                                        (
+                                            "在线（仅 FIDO）".to_string(),
+                                            rgb(0xf59e0b),
+                                            rgb(0xffffff),
+                                        )
                                     } else {
-                                        ("Online".to_string(), rgb(0x16a34a), rgb(0xffffff))
+                                        ("在线".to_string(), rgb(0x16a34a), rgb(0xffffff))
                                     }
                                 } else if error_owned.is_some() {
-                                    ("Error".to_string(), rgb(0xd97706), rgb(0xffffff))
+                                    ("错误".to_string(), rgb(0xd97706), rgb(0xffffff))
                                 } else {
-                                    ("Offline".to_string(), rgb(0xef4444), rgb(0xffffff))
+                                    ("离线".to_string(), rgb(0xef4444), rgb(0xffffff))
                                 };
 
                                 div()
@@ -343,7 +347,7 @@ impl Render for AppSidebar {
                             }),
                     )
                     .child(
-                        PFIconButton::new(Icon::default().path("icons/refresh-cw.svg"), "Refresh")
+                        PFIconButton::new(Icon::default().path("icons/refresh-cw.svg"), "刷新")
                             .on_click(cx.listener(|_, _, _, cx| {
                                 cx.emit(SidebarEvent::RefreshDevice);
                             })),
