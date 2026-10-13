@@ -184,11 +184,13 @@ impl Render for PinPromptContent {
                         h_flex()
                             .justify_end()
                             .gap_2()
-                            .child(Button::new("cancel").label("取消").on_click(
-                                |_, window, cx| {
-                                    window.close_dialog(cx);
-                                },
-                            ))
+                            .child(
+                                Button::new("cancel")
+                                    .label("取消")
+                                    .on_click(|_, window, cx| {
+                                        window.close_dialog(cx);
+                                    }),
+                            )
                             .child(
                                 Button::new("confirm")
                                     .primary()
@@ -251,11 +253,13 @@ impl Render for PinPromptContent {
                         h_flex()
                             .justify_end()
                             .gap_2()
-                            .child(Button::new("cancel").label("取消").on_click(
-                                |_, window, cx| {
-                                    window.close_dialog(cx);
-                                },
-                            ))
+                            .child(
+                                Button::new("cancel")
+                                    .label("取消")
+                                    .on_click(|_, window, cx| {
+                                        window.close_dialog(cx);
+                                    }),
+                            )
                             .child(
                                 Button::new("confirm")
                                     .primary()
@@ -432,11 +436,13 @@ impl Render for ConfirmContent {
                         h_flex()
                             .justify_end()
                             .gap_2()
-                            .child(Button::new("cancel").label("取消").on_click(
-                                |_, window, cx| {
-                                    window.close_dialog(cx);
-                                },
-                            ))
+                            .child(
+                                Button::new("cancel")
+                                    .label("取消")
+                                    .on_click(|_, window, cx| {
+                                        window.close_dialog(cx);
+                                    }),
+                            )
                             .child(
                                 Button::new("ok")
                                     .with_variant(ok_variant)
@@ -465,11 +471,13 @@ impl Render for ConfirmContent {
                         h_flex()
                             .justify_end()
                             .gap_2()
-                            .child(Button::new("cancel").label("取消").on_click(
-                                |_, window, cx| {
-                                    window.close_dialog(cx);
-                                },
-                            ))
+                            .child(
+                                Button::new("cancel")
+                                    .label("取消")
+                                    .on_click(|_, window, cx| {
+                                        window.close_dialog(cx);
+                                    }),
+                            )
                             .child(
                                 Button::new("ok")
                                     .with_variant(ok_variant)
@@ -688,7 +696,10 @@ impl Render for ChangePinContent {
                                     if new_pin_text != confirm_pin_text {
                                         if let Some(h) = handle.upgrade() {
                                             h.update(cx, |this, cx| {
-                                                this.set_error("两次输入的 PIN 不一致".to_string(), cx);
+                                                this.set_error(
+                                                    "两次输入的 PIN 不一致".to_string(),
+                                                    cx,
+                                                );
                                             });
                                         }
                                         return;
@@ -760,7 +771,10 @@ impl Render for ChangePinContent {
                                     if new_pin_text != confirm_pin_text {
                                         if let Some(h) = handle.upgrade() {
                                             h.update(cx, |this, cx| {
-                                                this.set_error("两次输入的 PIN 不一致".to_string(), cx);
+                                                this.set_error(
+                                                    "两次输入的 PIN 不一致".to_string(),
+                                                    cx,
+                                                );
                                             });
                                         }
                                         return;
@@ -996,7 +1010,10 @@ impl Render for SetPinContent {
                                     if new_pin_text != confirm_pin_text {
                                         if let Some(h) = handle.upgrade() {
                                             h.update(cx, |this, cx| {
-                                                this.set_error("两次输入的 PIN 不一致".to_string(), cx);
+                                                this.set_error(
+                                                    "两次输入的 PIN 不一致".to_string(),
+                                                    cx,
+                                                );
                                             });
                                         }
                                         return;
@@ -1059,7 +1076,10 @@ impl Render for SetPinContent {
                                     if new_pin_text != confirm_pin_text {
                                         if let Some(h) = handle.upgrade() {
                                             h.update(cx, |this, cx| {
-                                                this.set_error("两次输入的 PIN 不一致".to_string(), cx);
+                                                this.set_error(
+                                                    "两次输入的 PIN 不一致".to_string(),
+                                                    cx,
+                                                );
                                             });
                                         }
                                         return;
@@ -1192,41 +1212,41 @@ impl Render for StatusContent {
                 )
                 .into_any_element(),
 
-            DialogPhase::Error(err_msg) => {
-                v_flex()
-                    .gap_4()
-                    .child(
-                        h_flex()
-                            .gap_2()
-                            .items_center()
-                            .child(
-                                gpui_component::Icon::new(gpui_component::IconName::CircleX)
-                                    .text_color(cx.theme().danger)
-                                    .with_size(gpui_component::Size::Large),
-                            )
-                            .child(self.title.clone()),
-                    )
-                    .child(
-                        div()
-                            .px_3()
-                            .py_2()
-                            .rounded_md()
-                            .bg(rgb(0x18181b))
-                            .text_color(rgb(0xef4444))
-                            .text_sm()
-                            .child(render_error_message(err_msg.clone())),
-                    )
-                    .child(
-                        h_flex()
-                            .justify_end()
-                            .child(Button::new("close").label("关闭").on_click(
-                                |_, window, cx| {
+            DialogPhase::Error(err_msg) => v_flex()
+                .gap_4()
+                .child(
+                    h_flex()
+                        .gap_2()
+                        .items_center()
+                        .child(
+                            gpui_component::Icon::new(gpui_component::IconName::CircleX)
+                                .text_color(cx.theme().danger)
+                                .with_size(gpui_component::Size::Large),
+                        )
+                        .child(self.title.clone()),
+                )
+                .child(
+                    div()
+                        .px_3()
+                        .py_2()
+                        .rounded_md()
+                        .bg(rgb(0x18181b))
+                        .text_color(rgb(0xef4444))
+                        .text_sm()
+                        .child(render_error_message(err_msg.clone())),
+                )
+                .child(
+                    h_flex()
+                        .justify_end()
+                        .child(
+                            Button::new("close")
+                                .label("关闭")
+                                .on_click(|_, window, cx| {
                                     window.close_dialog(cx);
-                                },
-                            )),
-                    )
-                    .into_any_element()
-            }
+                                }),
+                        ),
+                )
+                .into_any_element(),
 
             DialogPhase::LoadingWithMessage(msg) => v_flex()
                 .gap_4()

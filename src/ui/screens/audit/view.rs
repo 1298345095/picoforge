@@ -244,10 +244,7 @@ impl Render for AuditViewModel {
         let verify_body = self.verify_body(theme);
 
         let (dot, status_text) = match self.enabled {
-            Some(true) => (
-                theme.green,
-                "已启用——安全事件将记录到密钥的闪存中。",
-            ),
+            Some(true) => (theme.green, "已启用——安全事件将记录到密钥的闪存中。"),
             Some(false) => (
                 theme.muted_foreground,
                 "已关闭——安全日志需主动启用，目前不会记录事件。",

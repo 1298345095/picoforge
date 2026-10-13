@@ -193,11 +193,7 @@ impl Render for AccountsViewModel {
                         .justify_center()
                         .gap_3()
                         .py_6()
-                        .child(
-                            div()
-                                .font_semibold()
-                                .child("账户受密码保护"),
-                        )
+                        .child(div().font_semibold().child("账户受密码保护"))
                         .child(
                             div()
                                 .text_sm()
@@ -289,9 +285,12 @@ impl Render for AccountsViewModel {
                         v_flex()
                             .gap_1()
                             .child(div().font_medium().child("重置 OATH 模块"))
-                            .child(div().text_sm().text_color(theme.muted_foreground).child(
-                                "将删除所有账户及密码，此操作无法撤销。",
-                            )),
+                            .child(
+                                div()
+                                    .text_sm()
+                                    .text_color(theme.muted_foreground)
+                                    .child("将删除所有账户及密码，此操作无法撤销。"),
+                            ),
                     )
                     .child(reset_btn),
             );

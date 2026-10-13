@@ -167,11 +167,7 @@ impl Render for BackupViewModel {
                                 .text_sm()
                                 .child(format!("存在种子：{}", yn(s.has_seed))),
                         )
-                        .child(
-                            div()
-                                .text_sm()
-                                .child(format!("导出窗口：{export_state}")),
-                        )
+                        .child(div().text_sm().child(format!("导出窗口：{export_state}")))
                         .into_any_element()
                 }
                 None => div()

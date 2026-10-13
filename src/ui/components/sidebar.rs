@@ -316,7 +316,11 @@ impl Render for AppSidebar {
                             .child({
                                 let (text, color_bg, color_text) = if let Some(s) = &status_owned {
                                     if s.method == DeviceMethod::Fido {
-                                        ("在线（仅 FIDO）".to_string(), rgb(0xf59e0b), rgb(0xffffff))
+                                        (
+                                            "在线（仅 FIDO）".to_string(),
+                                            rgb(0xf59e0b),
+                                            rgb(0xffffff),
+                                        )
                                     } else {
                                         ("在线".to_string(), rgb(0x16a34a), rgb(0xffffff))
                                     }
