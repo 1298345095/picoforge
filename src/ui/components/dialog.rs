@@ -98,7 +98,7 @@ impl Render for PinPromptContent {
                     h_flex().justify_end().child(
                         Button::new("done")
                             .primary()
-                            .label("Done")
+                            .label("完成")
                             .on_click(|_, window, cx| {
                                 window.close_dialog(cx);
                             }),
@@ -119,11 +119,11 @@ impl Render for PinPromptContent {
                         h_flex()
                             .justify_end()
                             .gap_2()
-                            .child(Button::new("cancel").label("Cancel").disabled(true))
+                            .child(Button::new("cancel").label("取消").disabled(true))
                             .child(
                                 Button::new("confirm")
                                     .primary()
-                                    .label("Loading...")
+                                    .label("加载中…")
                                     .loading(true),
                             ),
                     )
@@ -184,7 +184,7 @@ impl Render for PinPromptContent {
                         h_flex()
                             .justify_end()
                             .gap_2()
-                            .child(Button::new("cancel").label("Cancel").on_click(
+                            .child(Button::new("cancel").label("取消").on_click(
                                 |_, window, cx| {
                                     window.close_dialog(cx);
                                 },
@@ -251,7 +251,7 @@ impl Render for PinPromptContent {
                         h_flex()
                             .justify_end()
                             .gap_2()
-                            .child(Button::new("cancel").label("Cancel").on_click(
+                            .child(Button::new("cancel").label("取消").on_click(
                                 |_, window, cx| {
                                     window.close_dialog(cx);
                                 },
@@ -384,7 +384,7 @@ impl Render for ConfirmContent {
                     h_flex().justify_end().child(
                         Button::new("done")
                             .primary()
-                            .label("Done")
+                            .label("完成")
                             .on_click(|_, window, cx| {
                                 window.close_dialog(cx);
                             }),
@@ -399,11 +399,11 @@ impl Render for ConfirmContent {
                     h_flex()
                         .justify_end()
                         .gap_2()
-                        .child(Button::new("cancel").label("Cancel").disabled(true))
+                        .child(Button::new("cancel").label("取消").disabled(true))
                         .child(
                             Button::new("ok")
                                 .with_variant(self.ok_variant)
-                                .label("Loading...")
+                                .label("加载中…")
                                 .loading(true),
                         ),
                 )
@@ -432,7 +432,7 @@ impl Render for ConfirmContent {
                         h_flex()
                             .justify_end()
                             .gap_2()
-                            .child(Button::new("cancel").label("Cancel").on_click(
+                            .child(Button::new("cancel").label("取消").on_click(
                                 |_, window, cx| {
                                     window.close_dialog(cx);
                                 },
@@ -465,7 +465,7 @@ impl Render for ConfirmContent {
                         h_flex()
                             .justify_end()
                             .gap_2()
-                            .child(Button::new("cancel").label("Cancel").on_click(
+                            .child(Button::new("cancel").label("取消").on_click(
                                 |_, window, cx| {
                                     window.close_dialog(cx);
                                 },
@@ -561,12 +561,12 @@ impl ChangePinContent {
         }
 
         if new_pin_text != confirm_pin_text {
-            self.set_error("PINs do not match".to_string(), cx);
+            self.set_error("两次输入的 PIN 不一致".to_string(), cx);
             return;
         }
 
         if new_pin_text.len() < 4 {
-            self.set_error("PIN must be at least 4 characters".to_string(), cx);
+            self.set_error("PIN 至少需要 4 个字符".to_string(), cx);
             return;
         }
 
@@ -592,14 +592,14 @@ impl Render for ChangePinContent {
                                 .text_color(cx.theme().green)
                                 .with_size(gpui_component::Size::Large),
                         )
-                        .child("Change PIN"),
+                        .child("修改 PIN"),
                 )
                 .child(msg.clone())
                 .child(
                     h_flex().justify_end().child(
                         Button::new("done")
                             .primary()
-                            .label("Done")
+                            .label("完成")
                             .on_click(|_, window, cx| {
                                 window.close_dialog(cx);
                             }),
@@ -609,26 +609,26 @@ impl Render for ChangePinContent {
 
             DialogPhase::Loading | DialogPhase::LoadingWithMessage(_) => v_flex()
                 .gap_4()
-                .child("Enter your current PIN and choose a new one.")
+                .child("请输入当前 PIN 并设置新的 PIN。")
                 .child(
                     v_flex()
                         .gap_4()
-                        .child("Current PIN")
+                        .child("当前 PIN")
                         .child(Input::new(&self.current_pin).disabled(true))
-                        .child("New PIN")
+                        .child("新 PIN")
                         .child(Input::new(&self.new_pin).disabled(true))
-                        .child("Confirm New PIN")
+                        .child("确认新 PIN")
                         .child(Input::new(&self.confirm_pin).disabled(true)),
                 )
                 .child(
                     h_flex()
                         .justify_end()
                         .gap_2()
-                        .child(Button::new("cancel").label("Cancel").disabled(true))
+                        .child(Button::new("cancel").label("取消").disabled(true))
                         .child(
                             Button::new("confirm")
                                 .primary()
-                                .label("Changing PIN...")
+                                .label("正在修改 PIN…")
                                 .loading(true),
                         ),
                 )
@@ -643,7 +643,7 @@ impl Render for ChangePinContent {
 
                 v_flex()
                     .gap_4()
-                    .child("Enter your current PIN and choose a new one.")
+                    .child("请输入当前 PIN 并设置新的 PIN。")
                     .child(
                         div()
                             .px_3()
@@ -657,11 +657,11 @@ impl Render for ChangePinContent {
                     .child(
                         v_flex()
                             .gap_4()
-                            .child("Current PIN")
+                            .child("当前 PIN")
                             .child(Input::new(&current_pin_entity))
-                            .child("New PIN")
+                            .child("新 PIN")
                             .child(Input::new(&new_pin_entity))
-                            .child("Confirm New PIN")
+                            .child("确认新 PIN")
                             .child(Input::new(&confirm_pin_entity)),
                     )
                     .child(
@@ -670,10 +670,10 @@ impl Render for ChangePinContent {
                             .gap_2()
                             .child(
                                 Button::new("cancel")
-                                    .label("Cancel")
+                                    .label("取消")
                                     .on_click(|_, window, cx| window.close_dialog(cx)),
                             )
-                            .child(Button::new("confirm").primary().label("Confirm").on_click(
+                            .child(Button::new("confirm").primary().label("确认").on_click(
                                 move |_, _, cx| {
                                     let current_pin_text =
                                         current_pin_entity.read(cx).text().to_string();
@@ -688,7 +688,7 @@ impl Render for ChangePinContent {
                                     if new_pin_text != confirm_pin_text {
                                         if let Some(h) = handle.upgrade() {
                                             h.update(cx, |this, cx| {
-                                                this.set_error("PINs do not match".to_string(), cx);
+                                                this.set_error("两次输入的 PIN 不一致".to_string(), cx);
                                             });
                                         }
                                         return;
@@ -698,7 +698,7 @@ impl Render for ChangePinContent {
                                         if let Some(h) = handle.upgrade() {
                                             h.update(cx, |this, cx| {
                                                 this.set_error(
-                                                    "PIN must be at least 4 characters".to_string(),
+                                                    "PIN 至少需要 4 个字符".to_string(),
                                                     cx,
                                                 );
                                             });
@@ -725,15 +725,15 @@ impl Render for ChangePinContent {
 
                 v_flex()
                     .gap_4()
-                    .child("Enter your current PIN and choose a new one.")
+                    .child("请输入当前 PIN 并设置新的 PIN。")
                     .child(
                         v_flex()
                             .gap_4()
-                            .child("Current PIN")
+                            .child("当前 PIN")
                             .child(Input::new(&current_pin_entity))
-                            .child("New PIN")
+                            .child("新 PIN")
                             .child(Input::new(&new_pin_entity))
-                            .child("Confirm New PIN")
+                            .child("确认新 PIN")
                             .child(Input::new(&confirm_pin_entity)),
                     )
                     .child(
@@ -742,10 +742,10 @@ impl Render for ChangePinContent {
                             .gap_2()
                             .child(
                                 Button::new("cancel")
-                                    .label("Cancel")
+                                    .label("取消")
                                     .on_click(|_, window, cx| window.close_dialog(cx)),
                             )
-                            .child(Button::new("confirm").primary().label("Confirm").on_click(
+                            .child(Button::new("confirm").primary().label("确认").on_click(
                                 move |_, _, cx| {
                                     let current_pin_text =
                                         current_pin_entity.read(cx).text().to_string();
@@ -760,7 +760,7 @@ impl Render for ChangePinContent {
                                     if new_pin_text != confirm_pin_text {
                                         if let Some(h) = handle.upgrade() {
                                             h.update(cx, |this, cx| {
-                                                this.set_error("PINs do not match".to_string(), cx);
+                                                this.set_error("两次输入的 PIN 不一致".to_string(), cx);
                                             });
                                         }
                                         return;
@@ -770,7 +770,7 @@ impl Render for ChangePinContent {
                                         if let Some(h) = handle.upgrade() {
                                             h.update(cx, |this, cx| {
                                                 this.set_error(
-                                                    "PIN must be at least 4 characters".to_string(),
+                                                    "PIN 至少需要 4 个字符".to_string(),
                                                     cx,
                                                 );
                                             });
@@ -799,17 +799,17 @@ pub fn open_change_pin(
 ) {
     let current_pin = cx.new(|cx| {
         InputState::new(window, cx)
-            .placeholder("Enter current PIN")
+            .placeholder("输入当前 PIN")
             .masked(true)
     });
     let new_pin = cx.new(|cx| {
         InputState::new(window, cx)
-            .placeholder("Enter new PIN")
+            .placeholder("输入新 PIN")
             .masked(true)
     });
     let confirm_pin = cx.new(|cx| {
         InputState::new(window, cx)
-            .placeholder("Confirm new PIN")
+            .placeholder("确认新 PIN")
             .masked(true)
     });
 
@@ -837,7 +837,7 @@ pub fn open_change_pin(
 
     window.open_dialog(cx, move |dialog, _, _| {
         dialog
-            .title("Change PIN")
+            .title("修改 PIN")
             .child(content.clone())
             .overlay_closable(false)
             .close_button(false)
@@ -880,12 +880,12 @@ impl SetPinContent {
         let confirm_pin_text = self.confirm_pin.read(cx).text().to_string();
 
         if new_pin_text != confirm_pin_text {
-            self.set_error("PINs do not match".to_string(), cx);
+            self.set_error("两次输入的 PIN 不一致".to_string(), cx);
             return;
         }
 
         if new_pin_text.len() < 4 {
-            self.set_error("PIN must be at least 4 characters".to_string(), cx);
+            self.set_error("PIN 至少需要 4 个字符".to_string(), cx);
             return;
         }
 
@@ -911,14 +911,14 @@ impl Render for SetPinContent {
                                 .text_color(cx.theme().green)
                                 .with_size(gpui_component::Size::Large),
                         )
-                        .child("Set Up PIN"),
+                        .child("设置 PIN"),
                 )
                 .child(msg.clone())
                 .child(
                     h_flex().justify_end().child(
                         Button::new("done")
                             .primary()
-                            .label("Done")
+                            .label("完成")
                             .on_click(|_, window, cx| {
                                 window.close_dialog(cx);
                             }),
@@ -928,24 +928,24 @@ impl Render for SetPinContent {
 
             DialogPhase::Loading | DialogPhase::LoadingWithMessage(_) => v_flex()
                 .gap_4()
-                .child("Choose a PIN for your pico-key.")
+                .child("请为 pico-key 设置 PIN。")
                 .child(
                     v_flex()
                         .gap_4()
-                        .child("New PIN")
+                        .child("新 PIN")
                         .child(Input::new(&self.new_pin).disabled(true))
-                        .child("Confirm New PIN")
+                        .child("确认新 PIN")
                         .child(Input::new(&self.confirm_pin).disabled(true)),
                 )
                 .child(
                     h_flex()
                         .justify_end()
                         .gap_2()
-                        .child(Button::new("cancel").label("Cancel").disabled(true))
+                        .child(Button::new("cancel").label("取消").disabled(true))
                         .child(
                             Button::new("confirm")
                                 .primary()
-                                .label("Setting PIN...")
+                                .label("正在设置 PIN…")
                                 .loading(true),
                         ),
                 )
@@ -959,7 +959,7 @@ impl Render for SetPinContent {
 
                 v_flex()
                     .gap_4()
-                    .child("Choose a PIN for your pico-key.")
+                    .child("请为 pico-key 设置 PIN。")
                     .child(
                         div()
                             .px_3()
@@ -973,9 +973,9 @@ impl Render for SetPinContent {
                     .child(
                         v_flex()
                             .gap_4()
-                            .child("New PIN")
+                            .child("新 PIN")
                             .child(Input::new(&new_pin_entity))
-                            .child("Confirm New PIN")
+                            .child("确认新 PIN")
                             .child(Input::new(&confirm_pin_entity)),
                     )
                     .child(
@@ -984,10 +984,10 @@ impl Render for SetPinContent {
                             .gap_2()
                             .child(
                                 Button::new("cancel")
-                                    .label("Cancel")
+                                    .label("取消")
                                     .on_click(|_, window, cx| window.close_dialog(cx)),
                             )
-                            .child(Button::new("confirm").primary().label("Confirm").on_click(
+                            .child(Button::new("confirm").primary().label("确认").on_click(
                                 move |_, _, cx| {
                                     let new_pin_text = new_pin_entity.read(cx).text().to_string();
                                     let confirm_pin_text =
@@ -996,7 +996,7 @@ impl Render for SetPinContent {
                                     if new_pin_text != confirm_pin_text {
                                         if let Some(h) = handle.upgrade() {
                                             h.update(cx, |this, cx| {
-                                                this.set_error("PINs do not match".to_string(), cx);
+                                                this.set_error("两次输入的 PIN 不一致".to_string(), cx);
                                             });
                                         }
                                         return;
@@ -1006,7 +1006,7 @@ impl Render for SetPinContent {
                                         if let Some(h) = handle.upgrade() {
                                             h.update(cx, |this, cx| {
                                                 this.set_error(
-                                                    "PIN must be at least 4 characters".to_string(),
+                                                    "PIN 至少需要 4 个字符".to_string(),
                                                     cx,
                                                 );
                                             });
@@ -1032,13 +1032,13 @@ impl Render for SetPinContent {
 
                 v_flex()
                     .gap_4()
-                    .child("Choose a PIN for your pico-key.")
+                    .child("请为 pico-key 设置 PIN。")
                     .child(
                         v_flex()
                             .gap_4()
-                            .child("New PIN")
+                            .child("新 PIN")
                             .child(Input::new(&new_pin_entity))
-                            .child("Confirm New PIN")
+                            .child("确认新 PIN")
                             .child(Input::new(&confirm_pin_entity)),
                     )
                     .child(
@@ -1047,10 +1047,10 @@ impl Render for SetPinContent {
                             .gap_2()
                             .child(
                                 Button::new("cancel")
-                                    .label("Cancel")
+                                    .label("取消")
                                     .on_click(|_, window, cx| window.close_dialog(cx)),
                             )
-                            .child(Button::new("confirm").primary().label("Confirm").on_click(
+                            .child(Button::new("confirm").primary().label("确认").on_click(
                                 move |_, _, cx| {
                                     let new_pin_text = new_pin_entity.read(cx).text().to_string();
                                     let confirm_pin_text =
@@ -1059,7 +1059,7 @@ impl Render for SetPinContent {
                                     if new_pin_text != confirm_pin_text {
                                         if let Some(h) = handle.upgrade() {
                                             h.update(cx, |this, cx| {
-                                                this.set_error("PINs do not match".to_string(), cx);
+                                                this.set_error("两次输入的 PIN 不一致".to_string(), cx);
                                             });
                                         }
                                         return;
@@ -1069,7 +1069,7 @@ impl Render for SetPinContent {
                                         if let Some(h) = handle.upgrade() {
                                             h.update(cx, |this, cx| {
                                                 this.set_error(
-                                                    "PIN must be at least 4 characters".to_string(),
+                                                    "PIN 至少需要 4 个字符".to_string(),
                                                     cx,
                                                 );
                                             });
@@ -1098,12 +1098,12 @@ pub fn open_setup_pin(
 ) {
     let new_pin = cx.new(|cx| {
         InputState::new(window, cx)
-            .placeholder("Enter new PIN")
+            .placeholder("输入新 PIN")
             .masked(true)
     });
     let confirm_pin = cx.new(|cx| {
         InputState::new(window, cx)
-            .placeholder("Confirm new PIN")
+            .placeholder("确认新 PIN")
             .masked(true)
     });
 
@@ -1130,7 +1130,7 @@ pub fn open_setup_pin(
 
     window.open_dialog(cx, move |dialog, _, _| {
         dialog
-            .title("Set Up PIN")
+            .title("设置 PIN")
             .child(content.clone())
             .overlay_closable(false)
             .close_button(false)
@@ -1184,7 +1184,7 @@ impl Render for StatusContent {
                     h_flex().justify_end().child(
                         Button::new("done")
                             .primary()
-                            .label("Done")
+                            .label("完成")
                             .on_click(|_, window, cx| {
                                 window.close_dialog(cx);
                             }),
@@ -1219,7 +1219,7 @@ impl Render for StatusContent {
                     .child(
                         h_flex()
                             .justify_end()
-                            .child(Button::new("close").label("Close").on_click(
+                            .child(Button::new("close").label("关闭").on_click(
                                 |_, window, cx| {
                                     window.close_dialog(cx);
                                 },
@@ -1235,7 +1235,7 @@ impl Render for StatusContent {
                 .child(
                     Button::new("loading")
                         .primary()
-                        .label("Applying...")
+                        .label("正在应用…")
                         .loading(true),
                 )
                 .into_any_element(),
@@ -1243,11 +1243,11 @@ impl Render for StatusContent {
             _ => v_flex()
                 .gap_4()
                 .items_center()
-                .child("Applying configuration...")
+                .child("正在应用配置…")
                 .child(
                     Button::new("loading")
                         .primary()
-                        .label("Applying...")
+                        .label("正在应用…")
                         .loading(true),
                 )
                 .into_any_element(),
@@ -1283,16 +1283,16 @@ pub fn open_status_dialog(
 }
 
 fn render_error_message(msg: String) -> impl IntoElement {
-    let troubleshooting_phrase = "troubleshooting guide";
+    let troubleshooting_phrase = "故障排查指南";
     let url = "https://github.com/librekeys/picoforge/wiki/Troubleshooting#1-my-key-is-not-detected-by-picoforge-or-picoforge-displays-a-device-status-of-online---fido-and-there-are-some-settings-that-i-cannot-configure";
 
     if msg.contains(troubleshooting_phrase) {
         v_flex()
-            .child("The device firmware does not support being configured in fido only communication mode.")
+            .child("设备固件不支持在仅 FIDO 通信模式下进行配置。")
             .child(
                 h_flex()
                     .gap_1()
-                    .child("Have a look at the")
+                    .child("请参阅")
                     .child(
                         div()
                             .text_color(rgb(0x3b82f6))
@@ -1302,7 +1302,7 @@ fn render_error_message(msg: String) -> impl IntoElement {
                             })
                             .child(troubleshooting_phrase.to_string()),
                     )
-                    .child("to fix this"),
+                    .child("解决此问题"),
             )
     } else {
         div().child(msg)
