@@ -182,7 +182,7 @@ impl AccountsViewModel {
             }
             Err(e) => {
                 log::warn!("OATH load failed: {e}");
-                cx.emit(AccountsEvent::Notification(format!("Accounts: {e}")));
+                cx.emit(AccountsEvent::Notification(format!("账户读取失败：{e}")));
             }
         }
         cx.notify();
@@ -356,7 +356,7 @@ impl AccountsViewModel {
                             };
                         }
                     }
-                    Err(e) => cx.emit(AccountsEvent::Notification(format!("Calculate: {e}"))),
+                    Err(e) => cx.emit(AccountsEvent::Notification(format!("计算验证码失败：{e}"))),
                 }
                 cx.notify();
             });

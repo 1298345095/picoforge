@@ -244,7 +244,7 @@ impl ProgramSlotForm {
                         }
                     };
                 let msg = format!(
-                    "Yubico OTP programmed. Register with a validation server:\nPublic ID: {}\nPrivate ID: {}\nKey: {}",
+                    "Yubico OTP 已写入。请在验证服务器中注册：\n公开 ID：{}\n私有 ID：{}\n密钥：{}",
                     otp::modhex_encode(&public),
                     hex::encode(private),
                     hex::encode(key),

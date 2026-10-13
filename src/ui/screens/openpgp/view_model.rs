@@ -173,7 +173,7 @@ impl OpenPgpViewModel {
         self.two_secret_dialog(
             "修改管理员 PIN",
             "当前管理员 PIN（PW3）",
-            "New admin PIN",
+            "新管理员 PIN",
             None,
             window,
             cx,
