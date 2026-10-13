@@ -1011,8 +1011,7 @@ impl ConfigViewModel {
             if Self::status_supports_legacy_fido_config(status) || is_rskey {
                 self.open_pin_dialog(phy, led, apps, window, cx);
             } else {
-                let handle =
-                    dialog::open_status_dialog("配置需要救援模式", window, cx);
+                let handle = dialog::open_status_dialog("配置需要救援模式", window, cx);
                 self.write_config_to_device(
                     phy,
                     led,

@@ -239,8 +239,7 @@ impl AuditViewModel {
     pub(super) fn open_verify(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let pin = Self::pin_input(window, cx);
         let expect = cx.new(|cx| {
-            InputState::new(window, cx)
-                .placeholder("预期密钥：16 位十六进制指纹或完整公钥（可选）")
+            InputState::new(window, cx).placeholder("预期密钥：16 位十六进制指纹或完整公钥（可选）")
         });
         let view = cx.entity().downgrade();
         let submit = {
@@ -297,8 +296,7 @@ impl AuditViewModel {
                         } else if !v.signature_ok {
                             "签名无效——请勿信任此日志。".to_string()
                         } else if !v.head_matches {
-                            "链头不匹配——日志在读取期间发生变化（可能遭到篡改）。"
-                                .to_string()
+                            "链头不匹配——日志在读取期间发生变化（可能遭到篡改）。".to_string()
                         } else {
                             "证明密钥不匹配——这不是已登记的设备。".to_string()
                         };

@@ -243,9 +243,7 @@ impl SlotsViewModel {
             let submit_btn = submit.clone();
             dialog
                 .title(format!("删除插槽 {slot} 的配置"))
-                .child(format!(
-                    "确定清除插槽 {slot} 的配置吗？此操作不可撤销。"
-                ))
+                .child(format!("确定清除插槽 {slot} 的配置吗？此操作不可撤销。"))
                 .child(
                     gpui_component::v_flex()
                         .gap_2()

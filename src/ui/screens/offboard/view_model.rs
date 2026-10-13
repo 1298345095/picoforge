@@ -63,8 +63,7 @@ impl OffboardViewModel {
 
     pub(super) fn open_confirm(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let serial = self.serial(cx);
-        let confirm =
-            cx.new(|cx| InputState::new(window, cx).placeholder("输入 OFFBOARD 以确认"));
+        let confirm = cx.new(|cx| InputState::new(window, cx).placeholder("输入 OFFBOARD 以确认"));
         let view = cx.entity().downgrade();
         let submit = {
             let confirm = confirm.clone();

@@ -34,8 +34,7 @@ const OPT_ALGO: &[(&str, u8)] = &[
     ("RSA-4096", 0x16),
 ];
 const OPT_PIN_POLICY: &[(&str, u8)] = &[("默认", 0), ("从不", 1), ("一次", 2), ("始终", 3)];
-const OPT_TOUCH_POLICY: &[(&str, u8)] =
-    &[("默认", 0), ("从不", 1), ("始终", 2), ("缓存", 3)];
+const OPT_TOUCH_POLICY: &[(&str, u8)] = &[("默认", 0), ("从不", 1), ("始终", 2), ("缓存", 3)];
 const OPT_TRIES: &[(&str, u8)] = &[("3", 3), ("5", 5), ("8", 8), ("10", 10)];
 const OPT_MGM_ALGO: &[(&str, u8)] = &[("AES-192", 0x0A), ("AES-128", 0x08), ("AES-256", 0x0C)];
 const OPT_MGM_TOUCH: &[(&str, u8)] = &[("无需触摸", 0), ("需要触摸", 1)];
@@ -75,9 +74,7 @@ fn resolve_mgm_auth(
         let pin = text.trim().to_string();
         if pin.is_empty() {
             let _ = view.update(cx, |_, cx| {
-                cx.emit(PivEvent::Notification(
-                    "请输入 PIN 以解锁管理密钥".into(),
-                ));
+                cx.emit(PivEvent::Notification("请输入 PIN 以解锁管理密钥".into()));
             });
             return None;
         }
@@ -539,9 +536,7 @@ impl PivViewModel {
             let btn = submit.clone();
             dialog
                 .title(format!("删除证书 — {}", slot_display_name(slot)))
-                .child(
-                    "仅删除此插槽中的证书，保留密钥。需要管理密钥。",
-                )
+                .child("仅删除此插槽中的证书，保留密钥。需要管理密钥。")
                 .child(
                     gpui_component::v_flex()
                         .gap_2()
@@ -706,10 +701,7 @@ impl PivViewModel {
                 let new_key = match hex::decode(new.read(cx).text().to_string().trim()) {
                     Ok(k) if piv_key_len_ok(new_algo, k.len()) => k,
                     _ => {
-                        return notify(
-                            cx,
-                            "新密钥长度必须与算法匹配（16、24 或 32 字节）",
-                        );
+                        return notify(cx, "新密钥长度必须与算法匹配（16、24 或 32 字节）");
                     }
                 };
                 let touch = selected_key(&touch_sel, OPT_MGM_TOUCH, cx) == 1;
@@ -734,9 +726,15 @@ impl PivViewModel {
             let ok = submit.clone();
             let btn = submit.clone();
             let field = |label: &str, sel: &Entity<SelectState<Vec<LabeledU8>>>| {
-                gpui_component::v_flex().gap_1().flex_1().child(label.to_string()).child(
-                    gpui_component::select::Select::new(sel).w_full().bg(rgb(0x222225)),
-                )
+                gpui_component::v_flex()
+                    .gap_1()
+                    .flex_1()
+                    .child(label.to_string())
+                    .child(
+                        gpui_component::select::Select::new(sel)
+                            .w_full()
+                            .bg(rgb(0x222225)),
+                    )
             };
             dialog
                 .title("修改管理密钥")
@@ -821,9 +819,7 @@ impl PivViewModel {
             };
             let Some(der) = cert_pem_to_der(&bytes) else {
                 let _ = view.update(cx, |_, cx| {
-                    cx.emit(PivEvent::Notification(
-                        "不是有效的 PEM/DER 证书".into(),
-                    ))
+                    cx.emit(PivEvent::Notification("不是有效的 PEM/DER 证书".into()))
                 });
                 return;
             };
@@ -1074,9 +1070,7 @@ impl PivViewModel {
                 let dst = selected_key(&dst_sel, OPT_SLOTS, cx);
                 if dst == src {
                     let _ = view.update(cx, |_, cx| {
-                        cx.emit(PivEvent::Notification(
-                            "请选择不同的目标插槽".into(),
-                        ));
+                        cx.emit(PivEvent::Notification("请选择不同的目标插槽".into()));
                     });
                     return;
                 }

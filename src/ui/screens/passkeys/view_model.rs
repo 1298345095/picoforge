@@ -363,7 +363,9 @@ impl PasskeysViewModel {
                 if !new_val.is_empty() {
                     if new_val != confirm_val {
                         let _ = view2.update(cx, |_, cx| {
-                            cx.emit(PasskeysEvent::Notification("两次输入的 PIN 不一致".to_string()));
+                            cx.emit(PasskeysEvent::Notification(
+                                "两次输入的 PIN 不一致".to_string(),
+                            ));
                         });
                         return;
                     }
@@ -378,8 +380,7 @@ impl PasskeysViewModel {
                     }
                 }
                 window.close_dialog(cx);
-                let status_handle =
-                    dialog::open_status_dialog("修改 PIN 最短长度", window, cx);
+                let status_handle = dialog::open_status_dialog("修改 PIN 最短长度", window, cx);
                 let _ = view2.update(cx, |this, cx| {
                     this.update_min_length(current_val, min_len, new_val, status_handle, cx);
                 });
@@ -397,26 +398,24 @@ impl PasskeysViewModel {
 
             dialog
                 .title("修改 PIN 最短长度")
-                .child(
-                    "设置 PIN 最短长度（4～63 个字符），并输入符合要求的新 PIN。",
-                )
+                .child("设置 PIN 最短长度（4～63 个字符），并输入符合要求的新 PIN。")
                 .child(
                     gpui_component::v_flex()
                         .gap_4()
                         .pb_4()
                         .child(
-                             gpui_component::v_flex()
+                            gpui_component::v_flex()
                                 .gap_2()
                                 .child(label_view.clone())
-                                .child(gpui_component::slider::Slider::new(&slider_handle))
+                                .child(gpui_component::slider::Slider::new(&slider_handle)),
                         )
                         .child("当前 PIN")
                         .child(gpui_component::input::Input::new(&current))
                         .child(
-                             gpui_component::v_flex()
+                            gpui_component::v_flex()
                                 .gap_2()
                                 .child(format!("新 PIN（至少 {} 个字符）", current_min))
-                                .child(gpui_component::input::Input::new(&new_pin_value))
+                                .child(gpui_component::input::Input::new(&new_pin_value)),
                         )
                         .child("确认新 PIN")
                         .child(gpui_component::input::Input::new(&confirm)),
@@ -553,8 +552,7 @@ impl PasskeysViewModel {
                 let _ = weak_self.update(cx, |this, cx| {
                     log::info!("Minimum PIN length updated to {}.", min_len);
                     let _ = status_handle.update(cx, |status_content, cx| {
-                        status_content
-                            .set_success(format!("最短长度已更新为 {}。", min_len), cx);
+                        status_content.set_success(format!("最短长度已更新为 {}。", min_len), cx);
                     });
                     this.sync_fido_state(None, cx);
                 });
@@ -622,10 +620,7 @@ impl PasskeysViewModel {
         self.loading = true;
         cx.notify();
 
-        log::info!(
-            "正在上传企业证明证书，来源：{}",
-            cert_path
-        );
+        log::info!("正在上传企业证明证书，来源：{}", cert_path);
         let weak_self = cx.entity().downgrade();
 
         self._task = Some(cx.spawn(async move |_, cx| {
@@ -761,7 +756,8 @@ impl PasskeysViewModel {
 
         dialog::open_confirm(
             "恢复设备出厂设置",
-            "确定要彻底清除设备数据吗？这将永久删除所有通行密钥、凭据和 PIN，且无法撤销。".to_string(),
+            "确定要彻底清除设备数据吗？这将永久删除所有通行密钥、凭据和 PIN，且无法撤销。"
+                .to_string(),
             "重置设备",
             gpui_component::button::ButtonVariant::Danger,
             window,
@@ -785,10 +781,7 @@ impl PasskeysViewModel {
         let weak_self = cx.entity().downgrade();
 
         let _ = status_handle.update(cx, |d, cx| {
-            d.set_loading(
-                "请拔出安全密钥，并在 10 秒内重新插入。",
-                cx,
-            );
+            d.set_loading("请拔出安全密钥，并在 10 秒内重新插入。", cx);
         });
 
         self._task = Some(cx.spawn(async move |_, cx| {
@@ -817,10 +810,7 @@ impl PasskeysViewModel {
                 let _ = weak_self.update(cx, |this, cx| {
                     this.loading = false;
                     let _ = status_handle.update(cx, |d, cx| {
-                        d.set_error(
-                            "等待设备重新连接超时，已取消重置。".to_string(),
-                            cx,
-                        );
+                        d.set_error("等待设备重新连接超时，已取消重置。".to_string(), cx);
                     });
                     cx.notify();
                 });
@@ -843,9 +833,7 @@ impl PasskeysViewModel {
                     let _ = status_handle.update(cx, |d, cx| {
                         d.set_success(msg, cx);
                     });
-                    cx.emit(PasskeysEvent::Notification(
-                        "设备重置成功".into(),
-                    ));
+                    cx.emit(PasskeysEvent::Notification("设备重置成功".into()));
                     this.lock_storage(cx);
                     this.sync_fido_state(None, cx);
                 }

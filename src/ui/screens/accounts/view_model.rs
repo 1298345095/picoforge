@@ -18,12 +18,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 // exists (algorithm byte, period seconds, digit count) or a 0/1 flag otherwise.
 const OPT_TYPE: &[(&str, u8)] = &[("基于时间（TOTP）", 0), ("基于计数器（HOTP）", 1)];
 const OPT_ALGO: &[(&str, u8)] = &[("SHA-1", 1), ("SHA-256", 2), ("SHA-512", 3)];
-const OPT_PERIOD: &[(&str, u8)] = &[
-    ("20 秒", 20),
-    ("30 秒", 30),
-    ("45 秒", 45),
-    ("60 秒", 60),
-];
+const OPT_PERIOD: &[(&str, u8)] = &[("20 秒", 20), ("30 秒", 30), ("45 秒", 45), ("60 秒", 60)];
 const OPT_DIGITS: &[(&str, u8)] = &[("6 位数字", 6), ("8 位数字", 8)];
 const OPT_TOUCH: &[(&str, u8)] = &[("无需触摸", 0), ("需要触摸", 1)];
 
@@ -537,8 +532,7 @@ impl AccountsViewModel {
                 this.loading = false;
                 match res {
                     Ok(_) => {
-                        let _ =
-                            status.update(cx, |d, cx| d.set_success("账户已添加。".into(), cx));
+                        let _ = status.update(cx, |d, cx| d.set_success("账户已添加。".into(), cx));
                         this.reload(cx);
                     }
                     Err(e) => {
@@ -723,8 +717,7 @@ impl AccountsViewModel {
         let view = cx.entity().downgrade();
         dialog::open_confirm(
             "重置 OATH 模块",
-            "这将永久删除所有账户和 OATH 密码，且无法撤销。"
-                .to_string(),
+            "这将永久删除所有账户和 OATH 密码，且无法撤销。".to_string(),
             "重置",
             gpui_component::button::ButtonVariant::Danger,
             window,
