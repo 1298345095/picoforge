@@ -62,20 +62,20 @@ impl BackupViewModel {
         let copy = {
             let p = phrase.to_string();
             Button::new("bk-copy")
-                .label("Copy")
+                .label("复制")
                 .ghost()
                 .on_click(cx.listener(move |_, _, _, cx| {
                     cx.write_to_clipboard(ClipboardItem::new_string(p.clone()));
                 }))
         };
         let clear = Button::new("bk-clear")
-            .label("Clear from screen")
+            .label("从屏幕清除")
             .ghost()
             .on_click(cx.listener(|this, _, _, cx| this.clear_exported(cx)));
 
         Card::new()
-            .title("Recovery phrase")
-            .description("Shown once — write it down now, then seal the window")
+            .title("恢复助记词")
+            .description("仅显示一次——请立即抄写并关闭导出窗口")
             .icon(Icon::default().path("icons/key-round.svg"))
             .header_right(h_flex().gap_2().child(copy).child(clear))
             .child(
@@ -88,7 +88,7 @@ impl BackupViewModel {
                             .bg(rgb(0x18181b))
                             .text_color(rgb(0xf59e0b))
                             .text_sm()
-                            .child("Anyone with this phrase can clone your FIDO identity. Store it offline; never paste it into a website."),
+                            .child("任何获得此助记词的人都可以克隆你的 FIDO 身份。请离线保存，切勿粘贴到网站上。"),
                     )
                     .child(
                         div()
@@ -107,8 +107,8 @@ impl BackupViewModel {
 
 impl Render for BackupViewModel {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        const TITLE: &str = "Backup";
-        const SUBTITLE: &str = "Wallet-style FIDO seed backup and restore.";
+        const TITLE: &str = "备份";
+        const SUBTITLE: &str = "使用助记词备份与恢复 FIDO 种子。";
 
         if let Some((heading, body)) = self.gate(cx).message() {
             let theme = cx.theme();
@@ -134,17 +134,17 @@ impl Render for BackupViewModel {
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, _, cx| this.refresh(cx)));
         let export_btn = Button::new("bk-export")
-            .label("Export seed")
+            .label("导出种子")
             .danger()
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, window, cx| this.open_export(window, cx)));
-        let seal_btn = PFButton::new("Seal window")
+        let seal_btn = PFButton::new("关闭导出窗口")
             .id("bk-seal")
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, window, cx| this.open_finalize(window, cx)));
         let restore_btn = Button::new("bk-restore")
-            .label("Restore seed")
+            .label("恢复种子")
             .danger()
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, window, cx| this.open_restore(window, cx)));
@@ -154,68 +154,68 @@ impl Render for BackupViewModel {
                 Some(s) => {
                     let yn = |b: bool| if b { "yes" } else { "no" };
                     let export_state = if s.sealed {
-                        "sealed (export refused until a factory reset)"
+                        "已封闭（恢复出厂设置前禁止导出）"
                     } else if s.has_seed {
-                        "open — seed can be exported once"
+                        "已开放——种子可导出一次"
                     } else {
-                        "no seed present"
+                        "不存在种子"
                     };
                     v_flex()
                         .gap_2()
                         .child(
                             div()
                                 .text_sm()
-                                .child(format!("Seed present: {}", yn(s.has_seed))),
+                                .child(format!("存在种子：{}", yn(s.has_seed))),
                         )
                         .child(
                             div()
                                 .text_sm()
-                                .child(format!("Export window: {export_state}")),
+                                .child(format!("导出窗口：{export_state}")),
                         )
                         .into_any_element()
                 }
                 None => div()
                     .text_sm()
                     .text_color(theme.muted_foreground)
-                    .child("Reading backup state…")
+                    .child("正在读取备份状态…")
                     .into_any_element(),
             };
             Card::new()
-                .title("Backup status")
-                .description("Whether a seed is present and the export window is open")
+                .title("备份状态")
+                .description("查看是否存在种子以及导出窗口是否开放")
                 .icon(Icon::default().path("icons/cpu.svg"))
                 .header_right(refresh_btn)
                 .child(body)
         };
 
         let export_card = Card::new()
-            .title("Export")
-            .description("Reveal the seed as a 24-word phrase, then seal the window")
+            .title("导出")
+            .description("将种子显示为 24 个助记词，然后关闭导出窗口")
             .icon(Icon::default().path("icons/lock-open.svg"))
             .child(
                 v_flex()
                     .gap_2()
                     .child(self.action_row(
-                        "Export seed",
-                        "Show the recovery phrase (offline; PIN or touch)",
+                        "导出种子",
+                        "显示恢复助记词（请离线操作；需要 PIN 或触摸确认）",
                         export_btn,
                         theme,
                     ))
                     .child(self.action_row(
-                        "Seal export window",
-                        "Refuse further exports until a factory reset",
+                        "关闭导出窗口",
+                        "在恢复出厂设置之前禁止再次导出",
                         seal_btn,
                         theme,
                     )),
             );
 
         let restore_card = Card::new()
-            .title("Restore")
-            .description("Install a seed from a 24-word phrase")
+            .title("恢复")
+            .description("通过 24 个助记词导入种子")
             .icon(Icon::default().path("icons/lock.svg"))
             .child(self.action_row(
-                "Restore seed",
-                "Replace the FIDO identity from a recovery phrase",
+                "恢复种子",
+                "使用恢复助记词替换 FIDO 身份",
                 restore_btn,
                 theme,
             ));

@@ -61,19 +61,19 @@ impl LockViewModel {
         let theme = cx.theme();
         let copy = {
             let p = phrase.to_string();
-            PFButton::new("Copy")
+            PFButton::new("复制")
                 .id("lk-copy")
                 .on_click(cx.listener(move |_, _, _, cx| {
                     cx.write_to_clipboard(ClipboardItem::new_string(p.clone()));
                 }))
         };
-        let clear = PFButton::new("Clear from screen")
+        let clear = PFButton::new("从屏幕清除")
             .id("lk-clear")
             .on_click(cx.listener(|this, _, _, cx| this.clear_lock_key(cx)));
 
         Card::new()
-            .title("Lock key")
-            .description("Shown once — you need it to unlock after every power-cycle")
+            .title("锁定密钥")
+            .description("仅显示一次——每次重新上电后均需使用它解锁")
             .icon(Icon::default().path("icons/key-round.svg"))
             .header_right(h_flex().gap_2().child(copy).child(clear))
             .child(
@@ -86,7 +86,7 @@ impl LockViewModel {
                             .bg(rgb(0x18181b))
                             .text_color(rgb(0xf59e0b))
                             .text_sm()
-                            .child("Lose this and the only recovery is a FIDO factory reset, which destroys this identity. Store it offline."),
+                            .child("若丢失此密钥，只能通过 FIDO 恢复出厂设置来恢复使用，且会销毁当前身份。请离线妥善保管。"),
                     )
                     .child(
                         div()
@@ -105,8 +105,8 @@ impl LockViewModel {
 
 impl Render for LockViewModel {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        const TITLE: &str = "Lock";
-        const SUBTITLE: &str = "At-rest soft-lock of the FIDO seed.";
+        const TITLE: &str = "锁定";
+        const SUBTITLE: &str = "对存储中的 FIDO 种子进行软件锁定。";
 
         if let Some((heading, body)) = self.gate(cx).message() {
             let theme = cx.theme();
@@ -132,16 +132,16 @@ impl Render for LockViewModel {
             .disabled(self.loading)
             .on_click(cx.listener(|this, _, _, cx| this.refresh(cx)));
         let enable_btn = Button::new("lk-enable")
-            .label("Engage lock")
+            .label("启用锁定")
             .danger()
             .disabled(self.loading || locked)
             .on_click(cx.listener(|this, _, window, cx| this.open_enable(window, cx)));
-        let unlock_btn = PFButton::new("Unlock")
+        let unlock_btn = PFButton::new("解锁")
             .id("lk-unlock")
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .disabled(self.loading || !locked)
             .on_click(cx.listener(|this, _, window, cx| this.open_unlock(window, cx)));
-        let disable_btn = PFButton::new("Disable lock")
+        let disable_btn = PFButton::new("禁用锁定")
             .id("lk-disable")
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .disabled(self.loading || !locked)
@@ -153,12 +153,12 @@ impl Render for LockViewModel {
                     Some(s) => {
                         let state = if s.locked {
                             if s.unlocked {
-                                "locked, unlocked for this power-cycle"
+                                "已锁定，本次上电周期已解锁"
                             } else {
-                                "locked — unlock before any FIDO login"
+                                "已锁定——使用 FIDO 登录前必须解锁"
                             }
                         } else {
-                            "not locked (plaintext seed)"
+                            "未锁定（明文种子）"
                         };
                         let (dot, color) = if s.locked && !s.unlocked {
                             ("●", theme.danger)
@@ -174,49 +174,49 @@ impl Render for LockViewModel {
                                     .gap_2()
                                     .items_center()
                                     .child(div().text_color(color).child(dot))
-                                    .child(div().text_sm().child(format!("State: {state}"))),
+                                    .child(div().text_sm().child(format!("状态：{state}"))),
                             )
                             .child(div().text_sm().text_color(theme.muted_foreground).child(
-                                format!("Seed present: {}", if s.has_seed { "yes" } else { "no" }),
+                                format!("存在种子：{}", if s.has_seed { "yes" } else { "no" }),
                             ))
                             .into_any_element()
                     }
                     None => div()
                         .text_sm()
                         .text_color(theme.muted_foreground)
-                        .child("Reading lock state…")
+                        .child("正在读取锁定状态…")
                         .into_any_element(),
                 };
             Card::new()
-                .title("Lock status")
-                .description("Whether the seed is wrapped at rest")
+                .title("锁定状态")
+                .description("检查存储中的种子是否受到加密保护")
                 .icon(Icon::default().path("icons/lock.svg"))
                 .header_right(refresh_btn)
                 .child(body)
         };
 
         let actions_card = Card::new()
-            .title("Actions")
-            .description("Engage, unlock, or disable the at-rest lock")
+            .title("操作")
+            .description("启用、解锁或禁用存储锁定")
             .icon(Icon::default().path("icons/lock-open.svg"))
             .child(
                 v_flex()
                     .gap_2()
                     .child(self.action_row(
-                        "Engage lock",
-                        "Wrap the seed and reveal a new lock key (PIN + touch)",
+                        "启用锁定",
+                        "加密种子并显示新的锁定密钥（需要 PIN 和触摸确认）",
                         enable_btn,
                         theme,
                     ))
                     .child(self.action_row(
-                        "Unlock",
-                        "Load the seed for this power-cycle (lock key)",
+                        "解锁",
+                        "在本次上电周期中加载种子（需锁定密钥）",
                         unlock_btn,
                         theme,
                     ))
                     .child(self.action_row(
-                        "Disable lock",
-                        "Restore the plaintext seed (lock key + PIN)",
+                        "禁用锁定",
+                        "恢复明文种子（需锁定密钥和 PIN）",
                         disable_btn,
                         theme,
                     )),

@@ -38,14 +38,14 @@ impl SlotsViewModel {
         let status_text = if configured {
             let mut s = info.kind.label().to_string();
             if info.touch {
-                s.push_str(" · touch");
+                s.push_str(" · 需要触摸");
             }
             s
         } else {
-            "Empty".to_string()
+            "空".to_string()
         };
 
-        let program_btn = PFButton::new(if configured { "Reprogram" } else { "Program" })
+        let program_btn = PFButton::new(if configured { "重新写入" } else { "写入" })
             .id(format!("prog-{slot}"))
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .disabled(self.loading)
@@ -54,7 +54,7 @@ impl SlotsViewModel {
             }));
         let test_btn = (info.kind == otp::SlotType::ChallengeResponse).then(|| {
             Button::new(SharedString::from(format!("test-{slot}")))
-                .label("Test")
+                .label("测试")
                 .ghost()
                 .disabled(self.loading)
                 .on_click(cx.listener(move |this, _, window, cx| {
@@ -81,7 +81,7 @@ impl SlotsViewModel {
             .child(
                 v_flex()
                     .gap_0p5()
-                    .child(div().font_medium().child(format!("Slot {slot}")))
+                    .child(div().font_medium().child(format!("插槽 {slot}")))
                     .child(
                         div()
                             .text_sm()
@@ -106,8 +106,8 @@ impl SlotsViewModel {
 
 impl Render for SlotsViewModel {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        const TITLE: &str = "Slots";
-        const SUBTITLE: &str = "Configurable OTP slots (Yubico OTP protocol).";
+        const TITLE: &str = "插槽";
+        const SUBTITLE: &str = "可配置的 OTP 插槽（Yubico OTP 协议）。";
 
         if let Some((heading, body)) = self.gate(cx).message() {
             let theme = cx.theme();
@@ -122,7 +122,7 @@ impl Render for SlotsViewModel {
         }
 
         let theme = cx.theme();
-        let swap_btn = PFButton::new("Swap 1 ↔ 2")
+        let swap_btn = PFButton::new("交换 1 ↔ 2")
             .id("swap-slots")
             .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
             .disabled(self.loading)
@@ -141,8 +141,8 @@ impl Render for SlotsViewModel {
         let toolbar = h_flex().gap_2().child(swap_btn).child(refresh_btn);
 
         let slots_card = Card::new()
-            .title("Slots")
-            .description(format!("{count} configurable slots"))
+            .title("插槽")
+            .description(format!("{count} 个可配置插槽"))
             .icon(Icon::default().path("icons/touch-app.svg"))
             .header_right(toolbar)
             .child(v_flex().gap_2().children(cards));
