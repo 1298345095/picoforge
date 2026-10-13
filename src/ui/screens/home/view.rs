@@ -86,12 +86,7 @@ impl HomeViewModel {
                             .grid()
                             .grid_cols(2)
                             .gap_4()
-                            .child(Self::render_kv(
-                                "序列号",
-                                info.serial.clone(),
-                                theme,
-                                true,
-                            ))
+                            .child(Self::render_kv("序列号", info.serial.clone(), theme, true))
                             .child(Self::render_kv(
                                 "固件版本",
                                 Self::firmware_version_label(status),
@@ -221,11 +216,7 @@ impl HomeViewModel {
                             .items_center()
                             .flex_wrap()
                             .gap_1()
-                            .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("FIDO 版本"),
-                            )
+                            .child(div().text_color(theme.muted_foreground).child("FIDO 版本"))
                             .child(div().text_color(theme.foreground).child(
                                 if fido.versions.is_empty() {
                                     "N/A".to_string()
@@ -250,11 +241,7 @@ impl HomeViewModel {
                         h_flex()
                             .justify_between()
                             .items_center()
-                            .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("驻留密钥"),
-                            )
+                            .child(div().text_color(theme.muted_foreground).child("驻留密钥"))
                             .child({
                                 let resident_keys_supported =
                                     fido.options.get("rk").copied().unwrap_or(false);
@@ -286,11 +273,7 @@ impl HomeViewModel {
                         h_flex()
                             .justify_between()
                             .items_center()
-                            .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("企业证明"),
-                            )
+                            .child(div().text_color(theme.muted_foreground).child("企业证明"))
                             .child(div().font_medium().text_color(theme.foreground).child({
                                 let enterprise_attestation_set =
                                     fido.options.get("ep").copied().unwrap_or(false);
@@ -307,11 +290,7 @@ impl HomeViewModel {
                             h_flex()
                                 .justify_between()
                                 .items_center()
-                                .child(
-                                    div()
-                                        .text_color(theme.muted_foreground)
-                                        .child("剩余凭据数"),
-                                )
+                                .child(div().text_color(theme.muted_foreground).child("剩余凭据数"))
                                 .child(
                                     div().font_medium().text_color(theme.foreground).child(
                                         fido.remaining_discoverable_credentials
@@ -383,11 +362,7 @@ impl HomeViewModel {
                     .child(
                         h_flex()
                             .justify_between()
-                            .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("LED 亮度"),
-                            )
+                            .child(div().text_color(theme.muted_foreground).child("LED 亮度"))
                             .child(
                                 config
                                     .led_brightness
@@ -418,11 +393,7 @@ impl HomeViewModel {
                     .child(
                         h_flex()
                             .justify_between()
-                            .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("LED 可调光"),
-                            )
+                            .child(div().text_color(theme.muted_foreground).child("LED 可调光"))
                             .child(
                                 Tag::new(if config.led_dimmable { "是" } else { "否" })
                                     .active(config.led_dimmable),
@@ -487,11 +458,7 @@ impl HomeViewModel {
                         h_flex()
                             .justify_between()
                             .items_center()
-                            .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("调试接口"),
-                            )
+                            .child(div().text_color(theme.muted_foreground).child("调试接口"))
                             .child(div().font_medium().text_color(theme.foreground).child(
                                 if status.secure_lock {
                                     "已禁止读取"
@@ -504,11 +471,7 @@ impl HomeViewModel {
                         h_flex()
                             .justify_between()
                             .items_center()
-                            .child(
-                                div()
-                                    .text_color(theme.muted_foreground)
-                                    .child("安全锁定"),
-                            )
+                            .child(div().text_color(theme.muted_foreground).child("安全锁定"))
                             .child(
                                 Tag::new(if status.secure_lock {
                                     "已确认"

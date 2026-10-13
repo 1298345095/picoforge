@@ -67,13 +67,9 @@ impl Render for SecurityViewModel {
                     .rounded_xl()
                     .overflow_hidden()
                     .child(
-                        div().p_6().child(
-                            div()
-                                .text_lg()
-                                .font_bold()
-                                .text_color(fg)
-                                .child("锁定设置"),
-                        ),
+                        div()
+                            .p_6()
+                            .child(div().text_lg().font_bold().text_color(fg).child("锁定设置")),
                     )
                     .child(
                         v_flex()
@@ -88,15 +84,13 @@ impl Render for SecurityViewModel {
                                         v_flex()
                                             .gap_1()
                                             .child(
-                                                div()
-                                                    .text_sm()
-                                                    .font_medium()
-                                                    .child("启用安全启动"),
+                                                div().text_sm().font_medium().child("启用安全启动"),
                                             )
                                             .child(
-                                                div().text_xs().text_color(muted_fg).child(
-                                                    "启动时验证固件签名",
-                                                ),
+                                                div()
+                                                    .text_xs()
+                                                    .text_color(muted_fg)
+                                                    .child("启动时验证固件签名"),
                                             ),
                                     )
                                     .child(
@@ -112,12 +106,13 @@ impl Render for SecurityViewModel {
                                     .child(
                                         v_flex()
                                             .gap_1()
+                                            .child(div().text_sm().font_medium().child("安全锁定"))
                                             .child(
-                                                div().text_sm().font_medium().child("安全锁定"),
-                                            )
-                                            .child(div().text_xs().text_color(muted_fg).child(
-                                                "防止通过调试端口读取密钥材料",
-                                            )),
+                                                div()
+                                                    .text_xs()
+                                                    .text_color(muted_fg)
+                                                    .child("防止通过调试端口读取密钥材料"),
+                                            ),
                                     )
                                     .child(
                                         Switch::new("secure-lock-switch")
@@ -175,11 +170,6 @@ impl Render for SecurityViewModel {
                     ),
             );
 
-        PageView::build(
-            "安全启动",
-            "将设备永久锁定到当前固件厂商。",
-            content,
-            theme,
-        )
+        PageView::build("安全启动", "将设备永久锁定到当前固件厂商。", content, theme)
     }
 }

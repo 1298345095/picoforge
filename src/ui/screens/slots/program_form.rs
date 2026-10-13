@@ -240,8 +240,7 @@ impl ProgramSlotForm {
                     match hex::decode(self.yk_key.read(cx).text().to_string().trim()) {
                         Ok(b) if b.len() == 16 => b.try_into().unwrap(),
                         _ => {
-                            return self
-                                .notify(cx, "密钥必须是 16 字节十六进制数据，请点击“生成”");
+                            return self.notify(cx, "密钥必须是 16 字节十六进制数据，请点击“生成”");
                         }
                     };
                 let msg = format!(
@@ -382,7 +381,10 @@ impl Render for ProgramSlotForm {
             _ => v_flex()
                 .gap_3()
                 .child(labeled_input("公开 ID（modhex）", &self.yk_public))
-                .child(labeled_input("私有 ID（十六进制，6 字节）", &self.yk_private))
+                .child(labeled_input(
+                    "私有 ID（十六进制，6 字节）",
+                    &self.yk_private,
+                ))
                 .child(labeled_input("密钥（十六进制，16 字节）", &self.yk_key))
                 .child(
                     h_flex()

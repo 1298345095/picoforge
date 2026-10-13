@@ -552,11 +552,7 @@ impl Render for ConfigViewModel {
                     .border_1()
                     .border_color(theme.border)
                     .rounded_xl()
-                    .child(
-                        div()
-                            .text_color(theme.muted_foreground)
-                            .child("未连接设备"),
-                    ),
+                    .child(div().text_color(theme.muted_foreground).child("未连接设备")),
                 theme,
             );
         }
@@ -632,11 +628,6 @@ impl Render for ConfigViewModel {
         );
 
         let theme = cx.theme();
-        PageView::build(
-            "配置",
-            "自定义设备设置和工作方式。",
-            inner,
-            theme,
-        )
+        PageView::build("配置", "自定义设备设置和工作方式。", inner, theme)
     }
 }

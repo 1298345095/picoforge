@@ -60,10 +60,7 @@ impl PasskeysViewModel {
                     }
                     Err(e) => {
                         let _ = entity.update(cx, |_, cx| {
-                            cx.emit(PasskeysEvent::Notification(format!(
-                                "保存 CSR 失败：{}",
-                                e
-                            )));
+                            cx.emit(PasskeysEvent::Notification(format!("保存 CSR 失败：{}", e)));
                         });
                     }
                 },
@@ -105,9 +102,7 @@ impl PasskeysViewModel {
                     .items_center()
                     .justify_between()
                     .p_4()
-                    .child(
-                        v_flex().child(div().font_medium().child("启用企业证明")),
-                    )
+                    .child(v_flex().child(div().font_medium().child("启用企业证明")))
                     .child(
                         h_flex().gap_2().child(
                             Switch::new("enable-ea-switch")
@@ -144,10 +139,14 @@ impl PasskeysViewModel {
                             .gap_2()
                             .when(csr_ready, |el| {
                                 el.child(
-                                    PFButton::new(if show_csr { "隐藏 CSR" } else { "查看 CSR" })
-                                        .id("view-csr-btn")
-                                        .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
-                                        .on_click(view_listener),
+                                    PFButton::new(if show_csr {
+                                        "隐藏 CSR"
+                                    } else {
+                                        "查看 CSR"
+                                    })
+                                    .id("view-csr-btn")
+                                    .with_colors(rgb(0x222225), rgb(0x2a2a2d), rgb(0x333336))
+                                    .on_click(view_listener),
                                 )
                             })
                             .child(
@@ -164,9 +163,12 @@ impl PasskeysViewModel {
                     div().border_t_1().border_color(theme.border).p_4().child(
                         v_flex()
                             .gap_3()
-                            .child(div().text_sm().text_color(theme.muted_foreground).child(
-                                "由设备证明密钥生成的证书签名请求。",
-                            ))
+                            .child(
+                                div()
+                                    .text_sm()
+                                    .text_color(theme.muted_foreground)
+                                    .child("由设备证明密钥生成的证书签名请求。"),
+                            )
                             .child(
                                 div()
                                     .font_family("monospace")
@@ -180,15 +182,13 @@ impl PasskeysViewModel {
                             .child(
                                 h_flex()
                                     .gap_2()
-                                    .child(
-                                        Button::new("copy-csr")
-                                            .label("复制到剪贴板")
-                                            .on_click(move |_, _, cx| {
-                                                cx.write_to_clipboard(ClipboardItem::new_string(
-                                                    pem_for_copy.clone(),
-                                                ));
-                                            }),
-                                    )
+                                    .child(Button::new("copy-csr").label("复制到剪贴板").on_click(
+                                        move |_, _, cx| {
+                                            cx.write_to_clipboard(ClipboardItem::new_string(
+                                                pem_for_copy.clone(),
+                                            ));
+                                        },
+                                    ))
                                     .child(
                                         Button::new("save-csr")
                                             .primary()
@@ -209,14 +209,12 @@ impl PasskeysViewModel {
             .border_color(theme.border)
             .rounded_lg()
             .child(
-                v_flex()
-                    .child(div().font_medium().child("上传证书"))
-                    .child(
-                        div()
-                            .text_sm()
-                            .text_color(theme.muted_foreground)
-                            .child("将签名后的证书上传到设备"),
-                    ),
+                v_flex().child(div().font_medium().child("上传证书")).child(
+                    div()
+                        .text_sm()
+                        .text_color(theme.muted_foreground)
+                        .child("将签名后的证书上传到设备"),
+                ),
             )
             .child(
                 PFButton::new("上传证书")
@@ -450,12 +448,7 @@ impl PasskeysViewModel {
                                 .text_color(theme.muted_foreground),
                         ),
                     )
-                    .child(
-                        div()
-                            .text_lg()
-                            .font_semibold()
-                            .child("需要身份验证"),
-                    )
+                    .child(div().text_lg().font_semibold().child("需要身份验证"))
                     .child(
                         div()
                             .text_color(theme.muted_foreground)
@@ -558,16 +551,12 @@ impl PasskeysViewModel {
             .rounded_xl()
             .gap_4()
             .child(
-                div()
-                    .rounded_full()
-                    .bg(theme.muted)
-                    .p_4()
-                    .child(
-                        Icon::default()
-                            .path("icons/key-round.svg")
-                            .size_8()
-                            .text_color(theme.muted_foreground),
-                    ),
+                div().rounded_full().bg(theme.muted).p_4().child(
+                    Icon::default()
+                        .path("icons/key-round.svg")
+                        .size_8()
+                        .text_color(theme.muted_foreground),
+                ),
             )
             .child(div().text_lg().font_semibold().child("未找到通行密钥"))
             .child(

@@ -301,12 +301,7 @@ impl Render for PivViewModel {
             .child(
                 v_flex()
                     .gap_2()
-                    .child(self.action_row(
-                        "PIN",
-                        "修改 6～8 位 PIV PIN",
-                        change_pin_btn,
-                        theme,
-                    ))
+                    .child(self.action_row("PIN", "修改 6～8 位 PIV PIN", change_pin_btn, theme))
                     .child(self.action_row(
                         "PUK",
                         "修改 PIN 解锁密钥（PUK）",
@@ -331,12 +326,7 @@ impl Render for PivViewModel {
             .title("管理密钥")
             .description("用于授权修改密钥和证书的密钥")
             .icon(Icon::default().path("icons/key-round.svg"))
-            .child(self.action_row(
-                "管理密钥",
-                "修改 PIV 管理密钥",
-                mgm_btn,
-                theme,
-            ));
+            .child(self.action_row("管理密钥", "修改 PIV 管理密钥", mgm_btn, theme));
 
         let reset_card = Card::new()
             .title("重置")
