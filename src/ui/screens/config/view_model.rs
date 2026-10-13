@@ -51,8 +51,8 @@ pub enum UsbIdentityPreset {
 impl UsbIdentityPreset {
     pub fn details(&self) -> (SharedString, Option<&'static str>, Option<&'static str>) {
         match self {
-            Self::Custom => ("Custom (Manual Entry)".into(), None, None),
-            Self::Generic => ("Generic (FEFF:FCFD)".into(), Some("FEFF"), Some("FCFD")),
+            Self::Custom => ("自定义（手动输入）".into(), None, None),
+            Self::Generic => ("通用设备（FEFF:FCFD）".into(), Some("FEFF"), Some("FCFD")),
             Self::LibreKeys => (
                 "LibreKeys One (1D50:619B)".into(),
                 Some("1D50"),
@@ -149,8 +149,8 @@ pub enum LedDriverType {
 impl LedDriverType {
     pub fn label(&self) -> SharedString {
         match self {
-            Self::PicoGpio => "Pico (Standard GPIO)".into(),
-            Self::PimoroniRgb => "Pimoroni (RGB)".into(),
+            Self::PicoGpio => "Pico（标准 GPIO）".into(),
+            Self::PimoroniRgb => "Pimoroni（RGB）".into(),
             Self::Ws2812Neopixel => "WS2812 (Neopixel)".into(),
             Self::Esp32Neopixel => "ESP32 Neopixel".into(),
         }
@@ -182,7 +182,7 @@ impl LedColorOrder {
     pub fn label(&self) -> SharedString {
         match self {
             Self::Rgb => "RGB".into(),
-            Self::Grb => "GRB (swap red/green)".into(),
+            Self::Grb => "GRB（交换红色和绿色）".into(),
         }
     }
 
@@ -363,21 +363,21 @@ impl ConfigViewModel {
         // strings so `config`'s borrow of `cx` ends before the `cx.new` widgets.
         let led_gpio_placeholder = config
             .and_then(|c| c.effective_led_gpio)
-            .map(|g| format!("Firmware default (GPIO {g})"))
-            .unwrap_or_else(|| "Firmware default".to_string());
+            .map(|g| format!("固件默认值（GPIO {g}）"))
+            .unwrap_or_else(|| "固件默认值".to_string());
         let touch_placeholder = config
             .and_then(|c| c.effective_touch_timeout)
-            .map(|t| format!("Firmware default ({t}s)"))
-            .unwrap_or_else(|| "Firmware default (30s)".to_string());
+            .map(|t| format!("固件默认值（{t} 秒）"))
+            .unwrap_or_else(|| "固件默认值（30 秒）".to_string());
         let default_driver_label = config
             .and_then(|c| c.effective_led_driver)
             .and_then(|d| {
                 LedDriverType::all()
                     .iter()
                     .find(|x| x.value() == d)
-                    .map(|x| format!("Firmware default — {}", x.label()))
+                    .map(|x| format!("固件默认值 — {}", x.label()))
             })
-            .unwrap_or_else(|| "Firmware default".to_string());
+            .unwrap_or_else(|| "固件默认值".to_string());
 
         let mut led_status_steady = false;
         let mut led_status_colors = [0; 4];
@@ -460,7 +460,7 @@ impl ConfigViewModel {
             cx.new(|cx| InputState::new(window, cx).default_value(current_product_name.clone()));
         let manufacturer_input = cx.new(|cx| {
             InputState::new(window, cx)
-                .placeholder("VID-derived default")
+                .placeholder("根据 VID 使用默认值")
                 .default_value(current_manufacturer.clone())
         });
 
@@ -612,7 +612,7 @@ impl ConfigViewModel {
                     this.device.update(cx, |repo, repo_cx| {
                         repo.refresh(repo_cx);
                     });
-                    let err_msg = "Device changed before write could complete. Refresh and try again.".to_string();
+                    let err_msg = "配置写入完成前设备已发生变化。请刷新设备状态后重试。".to_string();
                     match &dialog_handle {
                         StatusDialogHandle::Pin(dh) => {
                             let _ = dh.update(cx, |d, cx| d.set_error(err_msg, cx));
@@ -632,9 +632,9 @@ impl ConfigViewModel {
             // user presence for config writes on both FIDO and Rescue paths.
             cx.update(|cx| {
                 let msg = if method_clone == DeviceMethod::Fido {
-                    "Applying configuration... Touch your device if it flashes."
+                    "正在应用配置…如果设备指示灯闪烁，请触摸设备确认。"
                 } else {
-                    "Applying configuration... Press the device button to confirm."
+                    "正在应用配置…请按下设备按钮确认。"
                 };
                 match &dialog {
                     StatusDialogHandle::Pin(dh) => {
@@ -716,7 +716,7 @@ impl ConfigViewModel {
                             StatusDialogHandle::Pin(dh) => {
                                 let _ = dh.update(cx, |d, cx| {
                                     d.set_success(
-                                        "Configuration applied successfully.".to_string(),
+                                        "配置已成功应用。".to_string(),
                                         cx,
                                     );
                                 });
@@ -724,7 +724,7 @@ impl ConfigViewModel {
                             StatusDialogHandle::Status(dh) => {
                                 let _ = dh.update(cx, |d, cx| {
                                     d.set_success(
-                                        "Configuration applied successfully.".to_string(),
+                                        "配置已成功应用。".to_string(),
                                         cx,
                                     );
                                 });
@@ -734,12 +734,12 @@ impl ConfigViewModel {
                     Err(e) => {
                         log::error!("Error saving config: {}", e);
 
-                        let mut err_msg = format!("Failed to apply configuration: {}", e);
+                        let mut err_msg = format!("应用配置失败：{}", e);
 
                         if method == DeviceMethod::Fido && err_msg.contains("0x3E") {
-                            err_msg = "The device firmware does not support being configured in fido only communication mode. \nHave a look at the troubleshooting guide to fix this".to_string();
+                            err_msg = "设备固件不支持在仅 FIDO 通信模式下进行配置。\n请查看故障排查指南以解决此问题。".to_string();
                         } else if method == DeviceMethod::Fido && err_msg.contains("0x27") {
-                            err_msg = "Configuration denied (Status: 0x27). This usually means the operation timed out waiting for you to touch the device's button, or the PIN token was rejected.".to_string();
+                            err_msg = "配置被拒绝（状态码：0x27）。通常是等待触摸设备按钮超时，或 PIN 令牌遭到拒绝。".to_string();
                         }
 
                         match &dialog_handle {
@@ -773,11 +773,11 @@ impl ConfigViewModel {
         let view_handle = cx.entity().downgrade();
 
         dialog::open_pin_prompt(
-            "Authentication Required",
-            "Enter your device PIN to apply changes.",
-            "Enter FIDO PIN",
+            "需要身份验证",
+            "请输入设备 PIN 以应用更改。",
+            "输入 FIDO PIN",
             None,
-            "Confirm",
+            "确认",
             window,
             cx,
             move |pin, dialog_handle, cx| {
@@ -1012,7 +1012,7 @@ impl ConfigViewModel {
                 self.open_pin_dialog(phy, led, apps, window, cx);
             } else {
                 let handle =
-                    dialog::open_status_dialog("Configuration Requires Rescue Mode", window, cx);
+                    dialog::open_status_dialog("配置需要救援模式", window, cx);
                 self.write_config_to_device(
                     phy,
                     led,
@@ -1024,7 +1024,7 @@ impl ConfigViewModel {
                 );
             }
         } else {
-            let handle = dialog::open_status_dialog("Applying Configuration", window, cx);
+            let handle = dialog::open_status_dialog("正在应用配置", window, cx);
             self.write_config_to_device(
                 phy,
                 led,
