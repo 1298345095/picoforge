@@ -63,8 +63,7 @@ impl OffboardViewModel {
 
     pub(super) fn open_confirm(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let serial = self.serial(cx);
-        let confirm =
-            cx.new(|cx| InputState::new(window, cx).placeholder("Type OFFBOARD to confirm"));
+        let confirm = cx.new(|cx| InputState::new(window, cx).placeholder("输入 OFFBOARD 以确认"));
         let view = cx.entity().downgrade();
         let submit = {
             let confirm = confirm.clone();
@@ -73,13 +72,13 @@ impl OffboardViewModel {
                 if confirm.read(cx).text().to_string().trim() != "OFFBOARD" {
                     let _ = view.update(cx, |_, cx| {
                         cx.emit(OffboardEvent::Notification(
-                            "Type OFFBOARD exactly to confirm".into(),
+                            "请准确输入 OFFBOARD 以确认".into(),
                         ))
                     });
                     return;
                 }
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Offboarding", window, cx);
+                let status = dialog::open_status_dialog("正在清除设备数据", window, cx);
                 let serial = serial.clone();
                 let _ = view.update(cx, |this, cx| this.run_offboard(serial, status, cx));
             })
@@ -90,15 +89,15 @@ impl OffboardViewModel {
             let btn = submit.clone();
             let serial = serial.clone();
             dialog
-                .title("Offboard Device")
+                .title("清除设备数据")
                 .child(format!(
-                    "This ERASES everything on device {serial}: OTP slots, OATH, PIV, OpenPGP, the FIDO seed, passkeys, PINs, and org attestation — then writes a signed wipe receipt. It cannot be undone and needs several touches."
+                    "这将清除设备 {serial} 上的所有数据：OTP 插槽、OATH、PIV、OpenPGP、FIDO 种子、通行密钥、PIN 和组织证明，并生成签名清除回执。此操作不可撤销，需要多次触摸设备确认。"
                 ))
                 .child(
                     gpui_component::v_flex()
                         .gap_2()
                         .pb_2()
-                        .child("Confirmation")
+                        .child("操作确认")
                         .child(gpui_component::input::Input::new(&confirm)),
                 )
                 .on_ok(move |_, window, cx| {
@@ -109,11 +108,11 @@ impl OffboardViewModel {
                     let s = btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("go")
                             .danger()
-                            .label("Offboard")
+                            .label("清除数据")
                             .on_click(move |_, window, cx| s(window, cx)),
                     ]
                 })
@@ -132,7 +131,7 @@ impl OffboardViewModel {
         self.loading = true;
         let _ = status.update(cx, |d, cx| {
             d.set_loading(
-                "Wiping… touch the device (BOOTSEL) when it blinks (several times).",
+                "正在清除…设备指示灯闪烁时请触摸设备（BOOTSEL），可能需要多次确认。",
                 cx,
             )
         });
@@ -149,13 +148,13 @@ impl OffboardViewModel {
                     Ok(report) => {
                         let msg = if report.all_ok() {
                             if report.signed {
-                                "Offboarded — all applets wiped, receipt signed.".to_string()
+                                "设备清除完成——所有模块已擦除，回执已签名。".to_string()
                             } else {
-                                "Offboarded — all applets wiped (receipt UNSIGNED: no OTP DEVK)."
+                                "设备清除完成——所有模块已擦除（回执未签名：无 OTP DEVK）。"
                                     .to_string()
                             }
                         } else {
-                            format!("Offboard finished WITH FAILURES: {:?}", report.failures())
+                            format!("设备清除完成，但存在失败项：{:?}", report.failures())
                         };
                         this.report = Some(report);
                         let _ = status.update(cx, |d, cx| d.set_success(msg, cx));
@@ -194,10 +193,10 @@ impl OffboardViewModel {
             };
             let _ = view.update(cx, |_, cx| match std::fs::write(&path, json) {
                 Ok(_) => cx.emit(OffboardEvent::Notification(format!(
-                    "Receipt saved to {}",
+                    "回执已保存到 {}",
                     path.display()
                 ))),
-                Err(e) => cx.emit(OffboardEvent::Notification(format!("Save failed: {e}"))),
+                Err(e) => cx.emit(OffboardEvent::Notification(format!("保存失败：{e}"))),
             });
         }));
     }

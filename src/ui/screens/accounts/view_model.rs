@@ -16,16 +16,11 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 // Add-form dropdown options (label, key). The key is the wire value where one
 // exists (algorithm byte, period seconds, digit count) or a 0/1 flag otherwise.
-const OPT_TYPE: &[(&str, u8)] = &[("Time-based (TOTP)", 0), ("Counter-based (HOTP)", 1)];
+const OPT_TYPE: &[(&str, u8)] = &[("基于时间（TOTP）", 0), ("基于计数器（HOTP）", 1)];
 const OPT_ALGO: &[(&str, u8)] = &[("SHA-1", 1), ("SHA-256", 2), ("SHA-512", 3)];
-const OPT_PERIOD: &[(&str, u8)] = &[
-    ("20 seconds", 20),
-    ("30 seconds", 30),
-    ("45 seconds", 45),
-    ("60 seconds", 60),
-];
-const OPT_DIGITS: &[(&str, u8)] = &[("6 digits", 6), ("8 digits", 8)];
-const OPT_TOUCH: &[(&str, u8)] = &[("Not required", 0), ("Touch required", 1)];
+const OPT_PERIOD: &[(&str, u8)] = &[("20 秒", 20), ("30 秒", 30), ("45 秒", 45), ("60 秒", 60)];
+const OPT_DIGITS: &[(&str, u8)] = &[("6 位数字", 6), ("8 位数字", 8)];
+const OPT_TOUCH: &[(&str, u8)] = &[("无需触摸", 0), ("需要触摸", 1)];
 
 pub fn now_unix() -> u64 {
     SystemTime::now()
@@ -182,7 +177,7 @@ impl AccountsViewModel {
             }
             Err(e) => {
                 log::warn!("OATH load failed: {e}");
-                cx.emit(AccountsEvent::Notification(format!("Accounts: {e}")));
+                cx.emit(AccountsEvent::Notification(format!("账户读取失败：{e}")));
             }
         }
         cx.notify();
@@ -210,11 +205,11 @@ impl AccountsViewModel {
     pub(super) fn open_unlock_dialog(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let view = cx.entity().downgrade();
         dialog::open_pin_prompt(
-            "Unlock Accounts",
-            "Enter the OATH password for this device.",
-            "OATH password",
+            "解锁账户",
+            "请输入此设备的 OATH 密码。",
+            "OATH 密码",
             None,
-            "Unlock",
+            "解锁",
             window,
             cx,
             move |password, dialog_handle, cx| {
@@ -244,7 +239,7 @@ impl AccountsViewModel {
             let _ = weak.update(cx, |this, cx| {
                 match &list {
                     Ok(_) => {
-                        let _ = dh.update(cx, |d, cx| d.set_success("Unlocked.".into(), cx));
+                        let _ = dh.update(cx, |d, cx| d.set_success("已解锁。".into(), cx));
                     }
                     Err(e) => {
                         let _ = dh.update(cx, |d, cx| d.set_error(format!("{e}"), cx));
@@ -268,11 +263,11 @@ impl AccountsViewModel {
         let current = self.password.clone();
         let view = cx.entity().downgrade();
         dialog::open_pin_prompt(
-            "OATH Password",
-            "Enter a new OATH password, or leave empty to remove password protection.",
-            "New OATH password",
+            "OATH 密码",
+            "输入新的 OATH 密码；留空可移除密码保护。",
+            "新 OATH 密码",
             None,
-            "Save",
+            "保存",
             window,
             cx,
             move |new_password, dialog_handle, cx| {
@@ -309,9 +304,9 @@ impl AccountsViewModel {
                     Ok(_) => {
                         this.password = new_cache;
                         let msg = if this.password.is_some() {
-                            "Password saved."
+                            "密码已保存。"
                         } else {
-                            "Password removed."
+                            "密码保护已移除。"
                         };
                         let _ = dh.update(cx, |d, cx| d.set_success(msg.into(), cx));
                         this.reload(cx);
@@ -327,7 +322,7 @@ impl AccountsViewModel {
 
     pub(super) fn copy_code(&self, code: String, cx: &mut Context<Self>) {
         cx.write_to_clipboard(ClipboardItem::new_string(code));
-        cx.emit(AccountsEvent::Notification("Code copied".into()));
+        cx.emit(AccountsEvent::Notification("验证码已复制".into()));
     }
 
     /// Compute a single credential's code on demand (HOTP or touch-gated).
@@ -356,7 +351,7 @@ impl AccountsViewModel {
                             };
                         }
                     }
-                    Err(e) => cx.emit(AccountsEvent::Notification(format!("Calculate: {e}"))),
+                    Err(e) => cx.emit(AccountsEvent::Notification(format!("计算验证码失败：{e}"))),
                 }
                 cx.notify();
             });
@@ -365,15 +360,15 @@ impl AccountsViewModel {
 
     pub(super) fn open_add_dialog(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let issuer = cx.new(|cx| {
-            gpui_component::input::InputState::new(window, cx).placeholder("Issuer (e.g. GitHub)")
+            gpui_component::input::InputState::new(window, cx).placeholder("签发方（例如 GitHub）")
         });
         let account = cx.new(|cx| {
             gpui_component::input::InputState::new(window, cx)
-                .placeholder("Account (e.g. you@example.com)")
+                .placeholder("账户（例如 you@example.com）")
         });
         let secret = cx.new(|cx| {
             gpui_component::input::InputState::new(window, cx)
-                .placeholder("Base32 secret, or paste an otpauth:// URI")
+                .placeholder("Base32 密钥，或粘贴 otpauth:// URI")
         });
         let type_sel = select_state(window, cx, OPT_TYPE, 0);
         let algo_sel = select_state(window, cx, OPT_ALGO, 0);
@@ -403,10 +398,10 @@ impl AccountsViewModel {
                 } else {
                     let account_v = account.read(cx).text().to_string().trim().to_string();
                     if account_v.is_empty() {
-                        Err("Enter an account name".to_string())
+                        Err("请输入账户名称".to_string())
                     } else {
                         match oath::base32_decode(&secret_v).filter(|s| !s.is_empty()) {
-                            None => Err("Invalid base32 secret".to_string()),
+                            None => Err("无效的 Base32 密钥".to_string()),
                             Some(bytes) => {
                                 let issuer_v =
                                     issuer.read(cx).text().to_string().trim().to_string();
@@ -438,7 +433,7 @@ impl AccountsViewModel {
                 match parsed {
                     Ok(cred) => {
                         window.close_dialog(cx);
-                        let status = dialog::open_status_dialog("Adding Account", window, cx);
+                        let status = dialog::open_status_dialog("正在添加账户", window, cx);
                         let _ = view.update(cx, |this, cx| this.execute_add(cred, status, cx));
                     }
                     Err(e) => {
@@ -473,31 +468,31 @@ impl AccountsViewModel {
                     )
             };
             dialog
-                .title("Add Account")
-                .child("Fill in the details, or paste an otpauth:// URI into the secret field.")
+                .title("添加账户")
+                .child("填写账户信息，或在密钥字段中粘贴 otpauth:// URI。")
                 .child(
                     gpui_component::v_flex()
                         .gap_3()
                         .pb_2()
-                        .child("Issuer")
+                        .child("签发方")
                         .child(gpui_component::input::Input::new(&issuer))
-                        .child("Account")
+                        .child("账户")
                         .child(gpui_component::input::Input::new(&account))
-                        .child("Secret")
+                        .child("密钥")
                         .child(gpui_component::input::Input::new(&secret))
                         .child(
                             gpui_component::h_flex()
                                 .gap_3()
-                                .child(field("Account type", &type_sel))
-                                .child(field("Algorithm", &algo_sel)),
+                                .child(field("账户类型", &type_sel))
+                                .child(field("算法", &algo_sel)),
                         )
                         .child(
                             gpui_component::h_flex()
                                 .gap_3()
-                                .child(field("Period (time-based)", &period_sel))
-                                .child(field("Digits", &digits_sel)),
+                                .child(field("周期（基于时间）", &period_sel))
+                                .child(field("位数", &digits_sel)),
                         )
-                        .child(field("Touch", &touch_sel)),
+                        .child(field("触摸", &touch_sel)),
                 )
                 .on_ok(move |_, window, cx| {
                     submit_ok(window, cx);
@@ -507,11 +502,11 @@ impl AccountsViewModel {
                     let submit = submit_btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("add")
                             .primary()
-                            .label("Add")
+                            .label("添加")
                             .on_click(move |_, window, cx| submit(window, cx)),
                     ]
                 })
@@ -537,8 +532,7 @@ impl AccountsViewModel {
                 this.loading = false;
                 match res {
                     Ok(_) => {
-                        let _ =
-                            status.update(cx, |d, cx| d.set_success("Account added.".into(), cx));
+                        let _ = status.update(cx, |d, cx| d.set_success("账户已添加。".into(), cx));
                         this.reload(cx);
                     }
                     Err(e) => {
@@ -561,12 +555,12 @@ impl AccountsViewModel {
         let period = acc.period;
         let issuer = cx.new(|cx| {
             gpui_component::input::InputState::new(window, cx)
-                .placeholder("Issuer")
+                .placeholder("签发方")
                 .default_value(acc.issuer.clone().unwrap_or_default())
         });
         let account = cx.new(|cx| {
             gpui_component::input::InputState::new(window, cx)
-                .placeholder("Account")
+                .placeholder("账户")
                 .default_value(acc.account.clone())
         });
 
@@ -589,7 +583,7 @@ impl AccountsViewModel {
                 if new_id == old_id {
                     return;
                 }
-                let status = dialog::open_status_dialog("Renaming Account", window, cx);
+                let status = dialog::open_status_dialog("正在重命名账户", window, cx);
                 let old = old_id.clone();
                 let _ = view.update(cx, |this, cx| this.execute_rename(old, new_id, status, cx));
             })
@@ -601,15 +595,15 @@ impl AccountsViewModel {
             let submit_ok = submit.clone();
             let submit_btn = submit.clone();
             dialog
-                .title("Rename Account")
-                .child("Change the issuer and account name.")
+                .title("重命名账户")
+                .child("修改签发方和账户名称。")
                 .child(
                     gpui_component::v_flex()
                         .gap_3()
                         .pb_2()
-                        .child("Issuer")
+                        .child("签发方")
                         .child(gpui_component::input::Input::new(&issuer))
-                        .child("Account")
+                        .child("账户")
                         .child(gpui_component::input::Input::new(&account)),
                 )
                 .on_ok(move |_, window, cx| {
@@ -620,11 +614,11 @@ impl AccountsViewModel {
                     let submit = submit_btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("rename")
                             .primary()
-                            .label("Rename")
+                            .label("重命名")
                             .on_click(move |_, window, cx| submit(window, cx)),
                     ]
                 })
@@ -652,7 +646,7 @@ impl AccountsViewModel {
                 match res {
                     Ok(_) => {
                         let _ =
-                            status.update(cx, |d, cx| d.set_success("Account renamed.".into(), cx));
+                            status.update(cx, |d, cx| d.set_success("账户已重命名。".into(), cx));
                         this.reload(cx);
                     }
                     Err(e) => {
@@ -674,9 +668,9 @@ impl AccountsViewModel {
         let label = acc.issuer.clone().unwrap_or_else(|| acc.account.clone());
         let view = cx.entity().downgrade();
         dialog::open_confirm(
-            "Delete Account",
-            format!("Delete the account \"{label}\"? This cannot be undone."),
-            "Delete",
+            "删除账户",
+            format!("确定删除账户“{label}”吗？此操作不可撤销。"),
+            "删除",
             gpui_component::button::ButtonVariant::Danger,
             window,
             cx,
@@ -707,7 +701,7 @@ impl AccountsViewModel {
                 this.loading = false;
                 match res {
                     Ok(_) => {
-                        let _ = dh.update(cx, |d, cx| d.set_success("Account deleted.".into(), cx));
+                        let _ = dh.update(cx, |d, cx| d.set_success("账户已删除。".into(), cx));
                         this.reload(cx);
                     }
                     Err(e) => {
@@ -722,10 +716,9 @@ impl AccountsViewModel {
     pub(super) fn open_reset_dialog(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let view = cx.entity().downgrade();
         dialog::open_confirm(
-            "Reset OATH Applet",
-            "This permanently deletes ALL accounts and the OATH password. This cannot be undone."
-                .to_string(),
-            "Reset",
+            "重置 OATH 模块",
+            "这将永久删除所有账户和 OATH 密码，且无法撤销。".to_string(),
+            "重置",
             gpui_component::button::ButtonVariant::Danger,
             window,
             cx,
@@ -742,7 +735,7 @@ impl AccountsViewModel {
         }
         self.loading = true;
         cx.notify();
-        let status = dialog::open_status_dialog("Resetting OATH Applet", window, cx);
+        let status = dialog::open_status_dialog("正在重置 OATH 模块", window, cx);
         let weak = cx.entity().downgrade();
         self._task = Some(cx.spawn(async move |_, cx| {
             let res = cx
@@ -754,7 +747,7 @@ impl AccountsViewModel {
                 match res {
                     Ok(_) => {
                         let _ = status
-                            .update(cx, |d, cx| d.set_success("OATH applet reset.".into(), cx));
+                            .update(cx, |d, cx| d.set_success("OATH 模块已重置。".into(), cx));
                         this.accounts.clear();
                         this.loaded = false;
                         this.password = None;

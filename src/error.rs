@@ -9,16 +9,16 @@
 #[derive(Debug, thiserror::Error)]
 pub enum PFError {
     /// No compatible FIDO device could be detected on any transport.
-    #[error("No device found")]
+    #[error("未找到设备")]
     NoDevice,
     /// Wrapped error from the PC/SC smart card subsystem.
-    #[error("PCSC Error: {0}")]
+    #[error("PC/SC 错误：{0}")]
     Pcsc(#[from] pcsc::Error),
     /// An I/O or encoding/decoding failure (hex, CBOR, transport framing).
-    #[error("IO/Hex Error: {0}")]
+    #[error("I/O 或十六进制数据错误：{0}")]
     Io(String),
     /// A device-level error returned by the firmware or transport layer.
-    #[error("Device Error: {0}")]
+    #[error("设备错误：{0}")]
     Device(String),
 }
 
@@ -32,7 +32,7 @@ impl serde::Serialize for PFError {
         match self {
             PFError::NoDevice => {
                 state.serialize_field("type", "NoDevice")?;
-                state.serialize_field("message", "No device found")?;
+                state.serialize_field("message", "未找到设备")?;
             }
             PFError::Pcsc(err) => {
                 state.serialize_field("type", "Pcsc")?;

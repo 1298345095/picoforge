@@ -58,14 +58,22 @@ impl OpenPgpViewModel {
         let d = self.loading;
         let has_fp = k.fingerprint.chars().any(|c| c != '0');
         let status = if k.present {
-            format!("{} · 触摸 {}", k.algo, if k.touch { "on" } else { "off" })
+            format!(
+                "{} · 触摸 {}",
+                k.algo,
+                if k.touch { "开启" } else { "关闭" }
+            )
         } else {
             "空".to_string()
         };
 
         let mut col = v_flex()
             .gap_0p5()
-            .child(div().font_medium().child(slot.label()))
+            .child(
+                div()
+                    .font_medium()
+                    .child(super::view_model::slot_display_name(slot)),
+            )
             .child(
                 div()
                     .text_sm()
