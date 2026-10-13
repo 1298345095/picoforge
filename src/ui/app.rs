@@ -369,7 +369,7 @@ impl Render for ApplicationRoot {
         } else {
             "icons/chevron-left.svg"
         };
-        let toggle_tooltip = if collapsed { "Expand" } else { "Collapse" };
+        let toggle_tooltip = if collapsed { "展开" } else { "收起" };
 
         let toggle_btn = div()
             .id("sidebar-toggle-zone")
