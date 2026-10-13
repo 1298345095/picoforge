@@ -84,7 +84,7 @@ impl AttestationViewModel {
         cx.new(|cx| {
             InputState::new(window, cx)
                 .masked(true)
-                .placeholder("FIDO PIN — leave blank to touch instead")
+                .placeholder("FIDO PIN（留空则改用触摸确认）")
         })
     }
 
@@ -96,7 +96,7 @@ impl AttestationViewModel {
             files: true,
             directories: false,
             multiple: false,
-            prompt: Some("Select attestation P-256 private key (PEM/DER)".into()),
+            prompt: Some("选择 P-256 证明私钥（PEM/DER）".into()),
         });
         let view = cx.entity().downgrade();
         self._task = Some(cx.spawn(async move |_, cx| {
@@ -108,7 +108,7 @@ impl AttestationViewModel {
             };
             let Ok(key_bytes) = std::fs::read(&key_path) else {
                 let _ = view.update(cx, |_, cx| {
-                    cx.emit(AttestationEvent::Notification("Could not read the key file".into()))
+                    cx.emit(AttestationEvent::Notification("无法读取密钥文件".into()))
                 });
                 return;
             };
@@ -118,7 +118,7 @@ impl AttestationViewModel {
                     files: true,
                     directories: false,
                     multiple: false,
-                    prompt: Some("Select certificate chain, leaf first (PEM/DER)".into()),
+                    prompt: Some("选择证书链（叶证书在前，PEM/DER）".into()),
                 })
             });
             let Ok(chain_recv) = chain_recv else { return };
@@ -130,21 +130,21 @@ impl AttestationViewModel {
             };
             let Ok(chain_bytes) = std::fs::read(&chain_path) else {
                 let _ = view.update(cx, |_, cx| {
-                    cx.emit(AttestationEvent::Notification("Could not read the chain file".into()))
+                    cx.emit(AttestationEvent::Notification("无法读取证书链文件".into()))
                 });
                 return;
             };
             let _ = cx.update_window(handle, |_, window, cx| {
                 let _ = view.update(cx, |this, cx| {
                     this.open_pin_dialog(
-                        "Import Org Attestation",
-                        "Installs the org attestation key and chain (P-256). Requires the FIDO PIN, or a touch if none is set.",
+                        "导入组织证明",
+                        "安装组织证明密钥和证书链（P-256）。需要 FIDO PIN；若未设置 PIN，则通过触摸确认。",
                         move |pin, this, window, cx| {
-                            let status = dialog::open_status_dialog("Importing Attestation", window, cx);
+                            let status = dialog::open_status_dialog("正在导入证明", window, cx);
                             let (kb, cb) = (key_bytes.clone(), chain_bytes.clone());
                             this.run_unit(
                                 move || DeviceRepo::att_import_blocking(pin, kb, cb),
-                                "Org attestation installed.",
+                                "组织证明已安装。",
                                 status,
                                 cx,
                             );
@@ -161,13 +161,13 @@ impl AttestationViewModel {
 
     pub(super) fn open_clear(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.open_pin_dialog(
-            "Remove Org Attestation",
-            "Removes the org attestation and reverts to the self-signed device certificate. Requires the FIDO PIN, or a touch if none is set.",
+            "移除组织证明",
+            "移除组织证明并恢复使用设备自签名证书。需要 FIDO PIN；若未设置 PIN，则通过触摸确认。",
             |pin, this, window, cx| {
-                let status = dialog::open_status_dialog("Removing Attestation", window, cx);
+                let status = dialog::open_status_dialog("正在移除证明", window, cx);
                 this.run_unit(
                     move || DeviceRepo::att_clear_blocking(pin),
-                    "Org attestation removed.",
+                    "组织证明已移除。",
                     status,
                     cx,
                 );
@@ -221,11 +221,11 @@ impl AttestationViewModel {
                     let s = btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("go")
                             .primary()
-                            .label("Run")
+                            .label("执行")
                             .on_click(move |_, window, cx| s(window, cx)),
                     ]
                 })
@@ -244,7 +244,7 @@ impl AttestationViewModel {
         }
         self.loading = true;
         let _ = status.update(cx, |d, cx| {
-            d.set_loading("Working… touch the device (BOOTSEL).", cx)
+            d.set_loading("正在处理…请触摸设备（BOOTSEL）。", cx)
         });
         cx.notify();
         let weak = cx.entity().downgrade();

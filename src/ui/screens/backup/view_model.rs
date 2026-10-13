@@ -87,7 +87,7 @@ impl BackupViewModel {
         cx.new(|cx| {
             InputState::new(window, cx)
                 .masked(true)
-                .placeholder("FIDO PIN — leave blank to touch instead")
+                .placeholder("FIDO PIN（留空则改用触摸确认）")
         })
     }
 
@@ -102,16 +102,16 @@ impl BackupViewModel {
                 let p = pin.read(cx).text().to_string();
                 let p = (!p.is_empty()).then_some(p);
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Exporting Seed", window, cx);
+                let status = dialog::open_status_dialog("正在导出种子", window, cx);
                 let _ = view.update(cx, |this, cx| this.run_export(p, status, cx));
             })
         };
         Self::gated_dialog(
-            "Export FIDO Seed",
-            "Reveals the 32-byte master seed as a 24-word phrase — anyone with it can clone this FIDO identity. Do it offline, write it down, then seal the window. Requires the FIDO PIN, or a touch if none is set.",
+            "导出 FIDO 种子",
+            "将 32 字节主种子显示为 24 个助记词。任何持有这些助记词的人都可以克隆你的 FIDO 身份。请离线操作并抄写保存，然后关闭导出窗口。需要 FIDO PIN；若未设置 PIN，则通过触摸确认。",
             pin,
             None,
-            ("Export", ButtonVariant::Danger),
+            ("导出", ButtonVariant::Danger),
             submit,
             window,
             cx,
@@ -129,7 +129,7 @@ impl BackupViewModel {
         }
         self.loading = true;
         let _ = status.update(cx, |d, cx| {
-            d.set_loading("Exporting… touch the device (BOOTSEL).", cx)
+            d.set_loading("正在导出…请触摸设备（BOOTSEL）。", cx)
         });
         cx.notify();
         let weak = cx.entity().downgrade();
@@ -146,7 +146,7 @@ impl BackupViewModel {
                         this.load(cx);
                         let _ = status.update(cx, |d, cx| {
                             d.set_success(
-                                "Seed exported — write down the phrase shown below, then seal the window.".into(),
+                                "种子已导出——请立即抄写下面的助记词，然后关闭导出窗口。".into(),
                                 cx,
                             )
                         });
@@ -165,17 +165,17 @@ impl BackupViewModel {
     pub(super) fn open_finalize(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let view = cx.entity().downgrade();
         dialog::open_confirm(
-            "Seal Export Window",
-            "Permanently refuses further seed exports until a FIDO factory reset. Only do this after you have safely recorded the phrase. Touch the device to confirm.".to_string(),
-            "Seal",
+            "关闭导出窗口",
+            "关闭后，在 FIDO 恢复出厂设置之前将无法再次导出种子。请确保已妥善记录助记词，再触摸设备确认。".to_string(),
+            "关闭导出",
             ButtonVariant::Primary,
             window,
             cx,
             move |_dh, window, cx| {
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Sealing Window", window, cx);
+                let status = dialog::open_status_dialog("正在关闭导出窗口", window, cx);
                 let _ = view.update(cx, |this, cx| {
-                    this.run_unit(DeviceRepo::backup_finalize_blocking, "Export window sealed.", status, cx);
+                    this.run_unit(DeviceRepo::backup_finalize_blocking, "导出窗口已关闭。", status, cx);
                 });
             },
         );
@@ -186,7 +186,7 @@ impl BackupViewModel {
     pub(super) fn open_restore(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let pin = Self::pin_input(window, cx);
         let phrase =
-            cx.new(|cx| InputState::new(window, cx).placeholder("24 words separated by spaces"));
+            cx.new(|cx| InputState::new(window, cx).placeholder("输入 24 个助记词，用空格分隔"));
         let view = cx.entity().downgrade();
         let submit = {
             let pin = pin.clone();
@@ -199,11 +199,11 @@ impl BackupViewModel {
                 let p = pin.read(cx).text().to_string();
                 let p = (!p.is_empty()).then_some(p);
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Restoring Seed", window, cx);
+                let status = dialog::open_status_dialog("正在恢复种子", window, cx);
                 let _ = view.update(cx, |this, cx| {
                     this.run_unit(
                         move || DeviceRepo::backup_restore_blocking(p, m),
-                        "Seed restored — the FIDO identity now matches the backup.",
+                        "种子已恢复——设备的 FIDO 身份现在与备份一致。",
                         status,
                         cx,
                     );
@@ -211,11 +211,11 @@ impl BackupViewModel {
             })
         };
         Self::gated_dialog(
-            "Restore FIDO Seed",
-            "Installs a seed from a 24-word phrase, replacing the device's FIDO identity. Requires the FIDO PIN, or a touch if none is set.",
+            "恢复 FIDO 种子",
+            "使用 24 个助记词恢复种子，将替换设备当前的 FIDO 身份。需要 FIDO PIN；若未设置 PIN，则通过触摸确认。",
             pin,
-            Some(("Recovery phrase", phrase)),
-            ("Restore", ButtonVariant::Danger),
+            Some(("恢复助记词", phrase)),
+            ("恢复", ButtonVariant::Danger),
             submit,
             window,
             cx,
@@ -235,7 +235,7 @@ impl BackupViewModel {
         }
         self.loading = true;
         let _ = status.update(cx, |d, cx| {
-            d.set_loading("Working… touch the device (BOOTSEL).", cx)
+            d.set_loading("正在处理…请触摸设备（BOOTSEL）。", cx)
         });
         cx.notify();
         let weak = cx.entity().downgrade();
@@ -297,7 +297,7 @@ impl BackupViewModel {
                     let s = btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("go")
                             .with_variant(action_variant)

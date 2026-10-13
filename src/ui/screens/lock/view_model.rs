@@ -87,12 +87,12 @@ impl LockViewModel {
         cx.new(|cx| {
             InputState::new(window, cx)
                 .masked(true)
-                .placeholder("FIDO PIN (required)")
+                .placeholder("FIDO PIN（必填）")
         })
     }
 
     fn phrase_input(window: &mut Window, cx: &mut Context<Self>) -> Entity<InputState> {
-        cx.new(|cx| InputState::new(window, cx).placeholder("24-word lock key"))
+        cx.new(|cx| InputState::new(window, cx).placeholder("24 个助记词组成的锁定密钥"))
     }
 
     // ── Enable ──────────────────────────────────────────────────────────────
@@ -108,16 +108,16 @@ impl LockViewModel {
                     return;
                 }
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Engaging Lock", window, cx);
+                let status = dialog::open_status_dialog("正在启用锁定", window, cx);
                 let _ = view.update(cx, |this, cx| this.run_enable(p, status, cx));
             })
         };
         Self::dialog(
-            "Engage At-Rest Lock",
-            "Wraps the FIDO seed under a fresh lock key and erases the plaintext. After this, EVERY power-cycle needs an unlock before any FIDO login works. Losing the lock key means the only recovery is a factory reset, which destroys this identity. A FIDO PIN is required; touch to confirm.",
+            "启用存储锁定",
+            "使用新的锁定密钥加密 FIDO 种子，并清除明文。此后每次重新上电都必须先解锁才能使用 FIDO 登录。丢失锁定密钥后只能恢复出厂设置，这会销毁当前身份。需要 FIDO PIN，并触摸设备确认。",
             None,
             pin,
-            ("Engage lock", ButtonVariant::Danger),
+            ("启用锁定", ButtonVariant::Danger),
             submit,
             window,
             cx,
@@ -135,7 +135,7 @@ impl LockViewModel {
         }
         self.loading = true;
         let _ = status.update(cx, |d, cx| {
-            d.set_loading("Engaging… touch the device (BOOTSEL).", cx)
+            d.set_loading("正在锁定…请触摸设备（BOOTSEL）。", cx)
         });
         cx.notify();
         let weak = cx.entity().downgrade();
@@ -152,7 +152,7 @@ impl LockViewModel {
                         this.load(cx);
                         let _ = status.update(cx, |d, cx| {
                             d.set_success(
-                                "Locked — write down the lock key shown below; you need it every power-cycle.".into(),
+                                "锁定已启用——请记录下面的锁定密钥，每次重新上电都需要它。".into(),
                                 cx,
                             )
                         });
@@ -179,11 +179,11 @@ impl LockViewModel {
                     return;
                 }
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Unlocking", window, cx);
+                let status = dialog::open_status_dialog("正在解锁", window, cx);
                 let _ = view.update(cx, |this, cx| {
                     this.run_unit(
                         move || DeviceRepo::lock_unlock_blocking(m),
-                        "Unlocked — FIDO works until power-off.",
+                        "已解锁——断电前可正常使用 FIDO。",
                         status,
                         cx,
                     );
@@ -191,10 +191,10 @@ impl LockViewModel {
             })
         };
         Self::dialog_phrase_only(
-            "Unlock Seed",
-            "Loads the seed into RAM for this power cycle using the lock key.",
+            "解锁种子",
+            "使用锁定密钥将种子加载到内存中，供本次上电周期使用。",
             phrase,
-            ("Unlock", ButtonVariant::Primary),
+            ("解锁", ButtonVariant::Primary),
             submit,
             window,
             cx,
@@ -217,11 +217,11 @@ impl LockViewModel {
                     return;
                 }
                 window.close_dialog(cx);
-                let status = dialog::open_status_dialog("Disabling Lock", window, cx);
+                let status = dialog::open_status_dialog("正在禁用锁定", window, cx);
                 let _ = view.update(cx, |this, cx| {
                     this.run_unit(
                         move || DeviceRepo::lock_disable_blocking(p, m),
-                        "Lock disabled — plaintext seed restored.",
+                        "锁定已禁用——明文种子已恢复。",
                         status,
                         cx,
                     );
@@ -229,11 +229,11 @@ impl LockViewModel {
             })
         };
         Self::dialog(
-            "Disable At-Rest Lock",
-            "Restores the plaintext seed so FIDO works without an unlock. Needs the lock key and the FIDO PIN; touch to confirm.",
-            Some(("Lock key (24 words)", phrase)),
+            "禁用存储锁定",
+            "恢复明文种子，使 FIDO 无需解锁即可使用。需要锁定密钥、FIDO PIN，并触摸设备确认。",
+            Some(("锁定密钥（24 个助记词）", phrase)),
             pin,
-            ("Disable lock", ButtonVariant::Primary),
+            ("禁用锁定", ButtonVariant::Primary),
             submit,
             window,
             cx,
@@ -252,7 +252,7 @@ impl LockViewModel {
         }
         self.loading = true;
         let _ = status.update(cx, |d, cx| {
-            d.set_loading("Working… touch the device (BOOTSEL) if it blinks.", cx)
+            d.set_loading("正在处理…如果设备指示灯闪烁，请触摸设备（BOOTSEL）。", cx)
         });
         cx.notify();
         let weak = cx.entity().downgrade();
@@ -313,7 +313,7 @@ impl LockViewModel {
                     let s = btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("go")
                             .with_variant(action_variant)
@@ -346,7 +346,7 @@ impl LockViewModel {
                     gpui_component::v_flex()
                         .gap_2()
                         .pb_2()
-                        .child("Lock key (24 words)")
+                        .child("锁定密钥（24 个助记词）")
                         .child(gpui_component::input::Input::new(&phrase)),
                 )
                 .on_ok(move |_, window, cx| {
@@ -357,7 +357,7 @@ impl LockViewModel {
                     let s = btn.clone();
                     vec![
                         gpui_component::button::Button::new("cancel")
-                            .label("Cancel")
+                            .label("取消")
                             .on_click(|_, window, cx| window.close_dialog(cx)),
                         gpui_component::button::Button::new("go")
                             .with_variant(action_variant)
