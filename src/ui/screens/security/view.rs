@@ -48,14 +48,14 @@ impl Render for SecurityViewModel {
                                 div()
                                     .font_bold()
                                     .text_color(destructive_red)
-                                    .child("Feature Unstable"),
+                                    .child("功能尚不稳定"),
                             ),
                     )
                     .child(
                         div()
                             .text_sm()
                             .text_color(destructive_red)
-                            .child("This feature is currently under work and disabled for safety."),
+                            .child("此功能仍在开发中，为安全起见暂时禁用。"),
                     ),
             )
             .child(
@@ -72,7 +72,7 @@ impl Render for SecurityViewModel {
                                 .text_lg()
                                 .font_bold()
                                 .text_color(fg)
-                                .child("Lock Settings"),
+                                .child("锁定设置"),
                         ),
                     )
                     .child(
@@ -91,11 +91,11 @@ impl Render for SecurityViewModel {
                                                 div()
                                                     .text_sm()
                                                     .font_medium()
-                                                    .child("Enable Secure Boot"),
+                                                    .child("启用安全启动"),
                                             )
                                             .child(
                                                 div().text_xs().text_color(muted_fg).child(
-                                                    "Verifies firmware signature on startup",
+                                                    "启动时验证固件签名",
                                                 ),
                                             ),
                                     )
@@ -113,10 +113,10 @@ impl Render for SecurityViewModel {
                                         v_flex()
                                             .gap_1()
                                             .child(
-                                                div().text_sm().font_medium().child("Secure Lock"),
+                                                div().text_sm().font_medium().child("安全锁定"),
                                             )
                                             .child(div().text_xs().text_color(muted_fg).child(
-                                                "Prevents reading key material via debug ports",
+                                                "防止通过调试端口读取密钥材料",
                                             )),
                                     )
                                     .child(
@@ -142,7 +142,7 @@ impl Render for SecurityViewModel {
                                         div()
                                             .font_medium()
                                             .text_color(destructive_red)
-                                            .child("I understand the risks of bricking my device."),
+                                            .child("我了解此操作可能导致设备变砖。"),
                                     ),
                             ),
                     )
@@ -169,15 +169,15 @@ impl Render for SecurityViewModel {
                                             .gap_2()
                                             .items_center()
                                             .child(Icon::default().path("icons/lock.svg").size_4())
-                                            .child("Permanently Lock Device"),
+                                            .child("永久锁定设备"),
                                     ),
                             ),
                     ),
             );
 
         PageView::build(
-            "Secure Boot",
-            "Permanently lock this device to the current firmware vendor.",
+            "安全启动",
+            "将设备永久锁定到当前固件厂商。",
             content,
             theme,
         )

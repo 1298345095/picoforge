@@ -7,8 +7,8 @@ impl Render for AboutViewModel {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let theme = cx.theme();
         PageView::build(
-            "About",
-            "Information about the application and its development.",
+            "关于",
+            "应用程序及开发信息。",
             div()
                 .w_full()
                 .flex()
@@ -42,7 +42,7 @@ impl Render for AboutViewModel {
                                             .text_color(theme.muted_foreground)
                                             .max_w(px(450.0))
                                             .child(
-                                                "An open source commissioning tool for RS-Key and pico-fido security keys. Developed with Rust and GPUI.",
+                                                "适用于 RS-Key 和 pico-fido 安全密钥的开源配置管理工具，使用 Rust 和 GPUI 开发。",
                                             ),
                                     )
                                     .child(
@@ -60,13 +60,13 @@ impl Render for AboutViewModel {
                                                 h_flex()
                                                     .justify_between()
                                                     .items_start()
-                                                    .child("Code By:")
+                                                    .child("开发者：")
                                                     .child(
                                                         v_flex()
                                                             .font_medium()
                                                             .text_color(theme.foreground)
                                                             .items_end()
-                                                            .child("PicoForge Contributers"),
+                                                            .child("PicoForge 贡献者"),
                                                     ),
                                             )
                                             .child(
@@ -75,7 +75,7 @@ impl Render for AboutViewModel {
                                                     .items_center()
                                                     .pt_2()
                                                     .mt_2()
-                                                    .child(h_flex().items_center().gap_1().child("Copyright:"))
+                                                    .child(h_flex().items_center().gap_1().child("版权："))
                                                     .child(
                                                         div()
                                                             .font_medium()
